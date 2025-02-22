@@ -41,14 +41,7 @@ def tab_list(request):
 
     return Response(tabs_list)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def close_tab(id):
-    tab = Tab.objects.get(id=id)
-    tab.paid = True
-    tab.active = False
-    tab.save()
-    return tab
+
 
 
 @api_view(['POST'])
@@ -168,15 +161,13 @@ def close_tab(request):
 @api_view(['POST'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 @permission_classes([IsAuthenticated])
-def add_tab_item(request, tab_id):
+def add_tab_item(request):
     """
     Add an item (a drink) to a tab.
     
-    URL Parameter:
-        - tab_id: ID of the tab to add the item to.
-    
     Expected JSON payload:
         {
+            "tab_id": <tab_id>,
             "drink": <drink_id>,
             "quantity": <quantity>
         }
@@ -189,10 +180,13 @@ def add_tab_item(request, tab_id):
       - Updates the tab's total based on all items.
     """
     data = request.data
+    tab_id = data.get('tab_id')
     drink_id = data.get('drink')
     quantity = data.get('quantity')
 
     # Validate input parameters.
+    if not tab_id:
+        return Response({'error': 'Tab ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
     if not drink_id:
         return Response({'error': 'Drink ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
     if not quantity:
@@ -243,3 +237,51 @@ def add_tab_item(request, tab_id):
     }
     
     return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def tab_items(request):
+    """
+    Retrieve all items in a specific tab along with their prices,
+    but only if the user is authenticated and the tab belongs to them.
+    
+    Expects a POST request with a JSON body containing:
+    {
+        "tab_id": <tab_id>
+    }
+    """
+    tab_id = request.data.get('tab_id')
+    if not tab_id:
+        return Response({'error': "Missing 'tab_id' in request body."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    tab = get_object_or_404(Tab, id=tab_id)
+    
+    # Check if the tab belongs to the authenticated user
+    if tab.customer != request.user:
+        return Response({'error': "You do not have permission to view this tab."},
+                        status=status.HTTP_403_FORBIDDEN)
+    
+    tab_items_qs = TabItem.objects.filter(tab=tab)
+    
+    items_list = []
+    for item in tab_items_qs:
+        items_list.append({
+            "drink": item.drink.name,
+            "price": str(item.drink.price),
+            "quantity": item.quantity,
+            "subtotal": str(item.drink.price * item.quantity)
+        })
+    
+    response_data = {
+        "tab": {
+            "id": tab.id,
+            "pub": tab.pub.name,
+            "table": tab.table.number,
+        },
+        "items": items_list,
+    }
+    
+    return Response(response_data)
