@@ -1,25 +1,28 @@
 import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
-import { Button, View, Text } from 'react-native';
+import { Button, View } from 'react-native';
+import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
 
-const API_URL = 'https://pubtab.eu.pythonanywhere.com/tabs/payment/'; // Replace with your actual API URL
+interface CheckoutProps {
+  amount: number;
+}
 
-export default function Checkout(): React.JSX.Element {
+export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const fetchPaymentSheetParams = async () => {
-    const response = await fetch(`${API_URL}`, {
+    const response = await fetch(`${SERVER_URL}/tabs/payment/`, {
       method: 'POST',
       headers: {
-      'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-      amount: 100,
-      currency: 'usd',
+        amount: amount,
+        currency: 'eur',
       }),
     });
-    const { paymentIntent, ephemeralKey, customer,  } = await response.json();
+    const { paymentIntent, ephemeralKey, customer } = await response.json();
 
     return {
       paymentIntent,
@@ -29,26 +32,19 @@ export default function Checkout(): React.JSX.Element {
   };
 
   const initializePaymentSheet = async () => {
-    const {
-      paymentIntent,
-      ephemeralKey,
-      customer,
-    } = await fetchPaymentSheetParams();
+    const { paymentIntent, ephemeralKey, customer } = await fetchPaymentSheetParams();
 
     await initPaymentSheet({
       merchantDisplayName: "Example, Inc.",
       customerId: customer,
       customerEphemeralKeySecret: ephemeralKey,
       paymentIntentClientSecret: paymentIntent.client_secret,
-      // Set `allowsDelayedPaymentMethods` to true if your business can handle payment
-      //methods that complete payment after a delay, like SEPA Debit and Sofort.
       allowsDelayedPaymentMethods: true,
       defaultBillingDetails: {
         name: 'Jane Doe',
-      }
+      },
     });
-  }
-
+  };
 
   const openPaymentSheet = async () => {
     await initializePaymentSheet();
@@ -69,13 +65,12 @@ export default function Checkout(): React.JSX.Element {
   }, []);
 
   return (
-    <View>
+    <View style={{ backgroundColor: ACCENT_COLOR_1, padding: 10, borderRadius: 50 }}>
       <Button
-        title="Checkout"
+        title="Settle and close tab"
         onPress={openPaymentSheet}
+        color={ACCENT_COLOR_2}
       />
     </View>
   );
 }
-
-
