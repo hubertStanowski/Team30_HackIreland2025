@@ -1,7 +1,12 @@
+import os
+
+from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from .models import Tab, TabItem
+import stripe
+from .serializers import StripeSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
@@ -33,6 +38,49 @@ def tab_list(request):
         tabs_list.append(tab_data)
 
     return Response(tabs_list)
+
+
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+def stripe_payment(request):
+    """
+    Process a payment with Stripe
+    :return:
+    """
+    serializer = StripeSerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        amount = validated_data.get('amount')
+        currency = validated_data.get('currency')
+
+        stripe.api_key = os.getenv('STRIPE_SK')
+
+        customer = stripe.Customer.create()
+
+        # customer = stripe.Customer.retrieve()
+
+        ephemeralKey = stripe.EphemeralKey.create(
+            customer=customer['id'],
+            stripe_version='2025-01-27.acacia',
+        )
+
+        intent = stripe.PaymentIntent.create(
+            amount=int(amount * 100),  # Stripe expects the amount in cents
+            currency=currency,
+            customer=customer["id"],
+            automatic_payment_methods={
+                'enabled': True,
+            },
+        )
+
+        response_data = {
+            'paymentIntent': intent,
+            'ephemeralKey': ephemeralKey.secret,
+            'customer': customer.id,
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
@@ -73,5 +121,5 @@ def open_tab(request):
         'customer': tab.customer.username,
         'tab_items': []  # New tab; no tab items yet.
     }
-    
+
     return Response(tab_data, status=status.HTTP_201_CREATED)
