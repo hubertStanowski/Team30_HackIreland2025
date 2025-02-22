@@ -2,10 +2,8 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
-from tab.views import Tab
+from tab.models import Tab
 from .models import Pub, Table
-
-
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
