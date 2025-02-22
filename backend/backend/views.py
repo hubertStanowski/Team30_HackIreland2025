@@ -10,6 +10,31 @@ from django.utils.decorators import method_decorator
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    """
+    API endpoint for changing a user's password.
+    Expects 'old_password' and 'new_password' in the POST data.
+    """
+    old_password = request.data.get('old_password')
+    new_password = request.data.get('new_password')
+    
+    if not old_password or not new_password:
+        return Response({"error": "Old password and new password are required."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    user = authenticate(request, username=request.user.username, password=old_password)
+    if user is not None:
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password changed successfully."},
+                        status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Invalid password."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
     """
