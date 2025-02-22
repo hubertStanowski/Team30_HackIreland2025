@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Button, View, Text } from 'react-native';
 
-const API_URL = 'http://127.0.0.1:8000/tabs/payment/'; // Replace with your actual API URL
+const API_URL = 'https://pubtab.eu.pythonanywhere.com/tabs/payment/'; // Replace with your actual API URL
 
 export default function CheckoutScreen(): React.JSX.Element {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
