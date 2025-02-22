@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { BottomNavigation } from 'react-native-paper';
-import HomePage from '../components/HomePage';
-import { PRIMARY_COLOR, ACCENT_COLOR_2 } from '../constants';
-import CheckoutScreen from "../components/CheckoutScreen.tsx";
-import Checkout from "../components/Checkout.tsx";
+import HomePage from '../screens/HomePage.tsx';
+import { PRIMARY_COLOR, ACCENT_COLOR_2 } from '../constants.ts';
+import CheckoutPage from "../screens/CheckoutPage.tsx";
 
 const NavBar = () => {
   const [index, setIndex] = useState(0);
@@ -15,7 +14,7 @@ const NavBar = () => {
 
   const renderScene = BottomNavigation.SceneMap({
     home: HomePage,
-    checkout: Checkout,
+    checkout: CheckoutPage,
     profile: HomePage,
   });
 
