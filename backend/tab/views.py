@@ -31,3 +31,10 @@ def tab_list(request):
         tabs_list.append(tab_data)
 
     return Response(tabs_list)
+
+def close_tab(id):
+    tab = Tab.objects.get(id=id)
+    tab.paid = True
+    tab.active = False
+    tab.save()
+    return tab
