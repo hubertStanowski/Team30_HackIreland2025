@@ -1,9 +1,11 @@
+
 import os
 
 from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Tab, TabItem
 import stripe
 from .serializers import StripeSerializer
@@ -38,6 +40,15 @@ def tab_list(request):
         tabs_list.append(tab_data)
 
     return Response(tabs_list)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def close_tab(id):
+    tab = Tab.objects.get(id=id)
+    tab.paid = True
+    tab.active = False
+    tab.save()
+    return tab
 
 
 @api_view(['POST'])
