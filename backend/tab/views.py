@@ -37,6 +37,7 @@ def tab_list(request):
 
     return Response(tabs_list)
 
+
 @api_view(['POST'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 def stripe_payment(request):
@@ -52,11 +53,23 @@ def stripe_payment(request):
 
         stripe.api_key = os.getenv('STRIPE_SK')
 
+        customer = stripe.Customer.create()
+        ephemeralKey = stripe.EphemeralKey.create(
+            customer=customer['id'],
+            stripe_version='2025-01-27.acacia',
+        )
+
         intent = stripe.PaymentIntent.create(
             amount=int(amount * 100),  # Stripe expects the amount in cents
             currency=currency,
-            payment_method_types=['card']
+            payment_method_types=['card'],
+            customer=customer["id"]
         )
 
-        return Response(intent, status=status.HTTP_201_CREATED)
+        response_data = {
+            'paymentIntent': intent,
+            'ephemeralKey': ephemeralKey.secret,
+            'customer': customer.id,
+        }
+        return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
