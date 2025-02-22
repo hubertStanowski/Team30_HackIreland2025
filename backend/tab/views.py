@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import Tab, TabItem
+from pub.models import Drink
+from django.shortcuts import get_object_or_404
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
@@ -109,7 +111,7 @@ def close_tab(request):
 @permission_classes([IsAuthenticated])
 def add_tab_item(request, tab_id):
     """
-    Add an item (drink) to a tab.
+    Add an item (a drink) to a tab.
     
     URL Parameter:
         - tab_id: ID of the tab to add the item to.
@@ -119,6 +121,13 @@ def add_tab_item(request, tab_id):
             "drink": <drink_id>,
             "quantity": <quantity>
         }
+    
+    This view performs the following steps:
+      - Validates input parameters.
+      - Ensures that the tab exists, is active (unpaid), and belongs to the authenticated user.
+      - Ensures that the drink exists and belongs to the same pub as the tab.
+      - Creates or updates the TabItem accordingly.
+      - Updates the tab's total based on all items.
     """
     data = request.data
     drink_id = data.get('drink')
@@ -129,35 +138,49 @@ def add_tab_item(request, tab_id):
         return Response({'error': 'Drink ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
     if not quantity:
         return Response({'error': 'Quantity is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    
     try:
         quantity = int(quantity)
         if quantity < 1:
             return Response({'error': 'Quantity must be at least 1.'}, status=status.HTTP_400_BAD_REQUEST)
     except ValueError:
         return Response({'error': 'Quantity must be an integer.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Verify that the tab exists, belongs to the user, and is active (not paid).
-    try:
-        tab = Tab.objects.get(id=tab_id, customer=request.user, paid=False)
-    except Tab.DoesNotExist:
-        return Response({'error': 'Active tab not found for this user.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Create the TabItem.
-    try:
-        tab_item = TabItem.objects.create(
-            tab=tab,
-            drink_id=drink_id,
-            quantity=quantity
-        )
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Prepare the response data.
-    item_data = {
-        'id': tab_item.id,
-        'tab': tab_item.tab.id,
-        'drink': tab_item.drink.name,  # assumes the Drink model has a 'name' field.
-        'quantity': tab_item.quantity
+    
+    # Retrieve the tab ensuring it belongs to the authenticated user and is active.
+    tab = get_object_or_404(Tab, id=tab_id, customer=request.user, paid=False)
+    
+    # Retrieve the drink.
+    drink = get_object_or_404(Drink, id=drink_id)
+    
+    # Check if the drink belongs to the same pub as the tab.
+    if drink.pub.id != tab.pub.id:
+        return Response({'error': 'The selected drink does not belong to the same pub as the tab.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create or update the TabItem.
+    tab_item, created = TabItem.objects.get_or_create(
+        tab=tab,
+        drink=drink,
+        defaults={'quantity': quantity}
+    )
+    if not created:
+        tab_item.quantity += quantity
+        tab_item.save()
+    
+    # Recalculate the tab total based on all tab items.
+    total = 0
+    for item in tab.tabitem_set.select_related('drink').all():
+        total += item.quantity * item.drink.price
+    tab.total = total
+    tab.save()
+    
+    # Prepare response data.
+    response_data = {
+        'tab_item_id': tab_item.id,
+        'tab_id': tab.id,
+        'drink': drink.name,
+        'quantity': tab_item.quantity,
+        'updated_total': str(tab.total)  # convert Decimal to string for JSON serialization
     }
-
-    return Response(item_data, status=status.HTTP_201_CREATED)
+    
+    return Response(response_data, status=status.HTTP_201_CREATED)

@@ -33,7 +33,9 @@ class Drink(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     image = models.ImageField(upload_to='drinks', blank=True)
     drink_type = models.ForeignKey('DrinkType', on_delete=models.CASCADE)
+    pub = models.ForeignKey(Pub, on_delete=models.CASCADE, related_name='drinks')
 
+    
     def __str__(self):
         return self.name
 
