@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { BottomNavigation } from 'react-native-paper';
-import HomePage from '../screens/HomePage.tsx';
-import { PRIMARY_COLOR, ACCENT_COLOR_2 } from '../constants.ts';
-import CheckoutPage from "../screens/CheckoutPage.tsx";
+import HomePage from '../screens/HomePage';
+import CheckoutPage from "../screens/CheckoutPage";
+import { PRIMARY_COLOR, ACCENT_COLOR_2 } from '../constants';
 
 const NavBar = () => {
   const [index, setIndex] = useState(0);
@@ -12,22 +12,30 @@ const NavBar = () => {
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
 
-  const renderScene = BottomNavigation.SceneMap({
-    home: HomePage,
-    checkout: CheckoutPage,
-    profile: HomePage,
-  });
+  // ✅ Use a custom function to keep screens mounted (Fixes white flash)
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'home':
+        return <HomePage />;
+      case 'checkout':
+        return <CheckoutPage />;
+      case 'profile':
+        return <HomePage />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <BottomNavigation
       navigationState={{ index, routes }}
       onIndexChange={setIndex}
-      renderScene={renderScene}
-      shifting={false} // Set to true for animation effects
-      barStyle={{ backgroundColor: PRIMARY_COLOR }} // Use primary color for the bar background
-      activeColor={ACCENT_COLOR_2} // Use secondary color for active icons
-      inactiveColor="gray" // Use gray for inactive icons
-      sceneAnimationEnabled={true}
+      renderScene={renderScene} // ✅ Custom function to keep screens in memory
+      shifting={false}
+      barStyle={{ backgroundColor: PRIMARY_COLOR }}
+      activeColor={ACCENT_COLOR_2}
+      inactiveColor="gray"
+      sceneContainerStyle={{ backgroundColor: PRIMARY_COLOR }} // ✅ Ensures no white flash
     />
   );
 };

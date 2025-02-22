@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import {PRIMARY_COLOR} from "../constants.ts";
 
 const HomePage = () => {
   return (
@@ -14,6 +15,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: PRIMARY_COLOR,
   },
   text: {
     fontSize: 20,
