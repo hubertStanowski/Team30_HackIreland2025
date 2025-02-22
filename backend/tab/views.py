@@ -1,7 +1,12 @@
+import os
+
+from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from .models import Tab, TabItem
+import stripe
+from .serializers import StripeSerializer
 
 
 @api_view(['GET'])
@@ -31,3 +36,27 @@ def tab_list(request):
         tabs_list.append(tab_data)
 
     return Response(tabs_list)
+
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+def stripe_payment(request):
+    """
+    Process a payment with Stripe
+    :return:
+    """
+    serializer = StripeSerializer(data=request.data)
+    if serializer.is_valid():
+        validated_data = serializer.validated_data
+        amount = validated_data.get('amount')
+        currency = validated_data.get('currency')
+
+        stripe.api_key = os.getenv('STRIPE_SK')
+
+        intent = stripe.PaymentIntent.create(
+            amount=int(amount * 100),  # Stripe expects the amount in cents
+            currency=currency,
+            payment_method_types=['card']
+        )
+
+        return Response(intent, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
