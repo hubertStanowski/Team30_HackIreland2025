@@ -1,7 +1,6 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
 
-# Create your models here.
 
 class Tab(models.Model):
     drinks = models.ManyToManyField('pub.Drink', through='TabItem')
@@ -12,10 +11,11 @@ class Tab(models.Model):
     paid = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    customer = models.ForeignKey(User, on_delete=models.CASCADE)
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.pub.name} - Table {self.table.number}'
+
 
 class TabItem(models.Model):
     tab = models.ForeignKey('Tab', on_delete=models.CASCADE)
@@ -24,3 +24,10 @@ class TabItem(models.Model):
 
     def __str__(self):
         return f'{self.quantity} x {self.drink.name}'
+
+class StripeCustomer(models.Model):  # Custom user model
+    customer_id = models.CharField(max_length=255, null=True, blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username + ' - ' + self.customer_id
