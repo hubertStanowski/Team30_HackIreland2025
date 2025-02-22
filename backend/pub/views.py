@@ -3,6 +3,7 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from .models import Pub
 
+
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 def pub_list(request):
