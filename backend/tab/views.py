@@ -3,6 +3,7 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from .models import Tab, TabItem
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(['GET'])
