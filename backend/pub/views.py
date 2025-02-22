@@ -3,7 +3,8 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 
 from tab.views import Tab
-from .models import Pub
+from .models import Pub, Table
+
 
 
 @api_view(['GET'])
@@ -26,7 +27,7 @@ def busy_percentage():
     for pub in Pub.objects.all():
         tableUsed = 0
         tableTotal = 0
-        for table in table.objects.filter(pub=pub):
+        for table in Table.objects.filter(pub=pub):
             tableTotal += 1
             tabs = Tab.objects.filter(table=table)
             if tabs:
