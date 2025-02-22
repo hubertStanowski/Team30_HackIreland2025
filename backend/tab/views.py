@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Tab, TabItem
 
 
@@ -32,6 +33,7 @@ def tab_list(request):
 
     return Response(tabs_list)
 
+@permission_classes([IsAuthenticated])
 def close_tab(id):
     tab = Tab.objects.get(id=id)
     tab.paid = True
