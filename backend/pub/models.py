@@ -22,6 +22,7 @@ class Table(models.Model):
     capacity = models.IntegerField()
     location = models.CharField(max_length=100)
     description = models.TextField()
+    bussy = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.pub.name} - Table {self.number}'
