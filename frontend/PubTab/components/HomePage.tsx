@@ -1,14 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import NavBar from './NavBar';
-import TopBar from './TopBar';
-import { PRIMARY_COLOR, ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
+
 const HomePage = () => {
   return (
     <View style={styles.container}>
-      <TopBar />
-      <Text style={styles.title}>Welcome to HomePage</Text>
-      <NavBar />
+      <Text style={styles.text}>Welcome to Home Page</Text>
     </View>
   );
 };
@@ -18,11 +14,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: PRIMARY_COLOR,
   },
-  title: {
-    fontSize: 24,
+  text: {
+    fontSize: 20,
     fontWeight: 'bold',
+    color: 'white',
   },
 });
 
