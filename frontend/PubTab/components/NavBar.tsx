@@ -12,7 +12,6 @@ const NavBar = () => {
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
 
-  // ✅ Use a custom function to keep screens mounted (Fixes white flash)
   const renderScene = ({ route }) => {
     switch (route.key) {
       case 'home':
@@ -30,12 +29,12 @@ const NavBar = () => {
     <BottomNavigation
       navigationState={{ index, routes }}
       onIndexChange={setIndex}
-      renderScene={renderScene} // ✅ Custom function to keep screens in memory
+      renderScene={renderScene}
       shifting={false}
       barStyle={{ backgroundColor: PRIMARY_COLOR }}
       activeColor={ACCENT_COLOR_2}
       inactiveColor="gray"
-      sceneContainerStyle={{ backgroundColor: PRIMARY_COLOR }} // ✅ Ensures no white flash
+      sceneContainerStyle={{ backgroundColor: PRIMARY_COLOR }}
     />
   );
 };
