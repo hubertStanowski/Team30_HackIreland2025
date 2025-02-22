@@ -70,7 +70,6 @@ export default function CheckoutScreen(): React.JSX.Element {
 
   return (
     <View>
-      <Text>Payment</Text>
       <Button
         title="Checkout"
         onPress={openPaymentSheet}

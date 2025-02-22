@@ -10,7 +10,8 @@ function App(): React.JSX.Element {
   return (
     <StripeProvider publishableKey={publishableKey}>
       <View style={styles.container}>
-        <CheckoutScreen />
+        <View style={styles.checkoutButton}><CheckoutScreen /></View>
+          
       </View>
     </StripeProvider>
   );
@@ -21,6 +22,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  checkoutButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
   },
 });
 

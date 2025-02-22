@@ -54,6 +54,9 @@ def stripe_payment(request):
         stripe.api_key = os.getenv('STRIPE_SK')
 
         customer = stripe.Customer.create()
+
+        # customer = stripe.Customer.retrieve()
+
         ephemeralKey = stripe.EphemeralKey.create(
             customer=customer['id'],
             stripe_version='2025-01-27.acacia',
@@ -62,8 +65,10 @@ def stripe_payment(request):
         intent = stripe.PaymentIntent.create(
             amount=int(amount * 100),  # Stripe expects the amount in cents
             currency=currency,
-            payment_method_types=['card'],
-            customer=customer["id"]
+            customer=customer["id"],
+            automatic_payment_methods={
+                'enabled': True,
+            },
         )
 
         response_data = {
