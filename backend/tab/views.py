@@ -21,6 +21,7 @@ def tab_list(request):
             'pub': tab.pub.name,
             'table': tab.table.number,
             'total': tab.total,
+            'limit': tab.limit,
             'paid': tab.paid,
             'created': tab.created,
             'updated': tab.updated,
