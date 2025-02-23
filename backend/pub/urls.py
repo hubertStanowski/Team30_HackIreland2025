@@ -13,6 +13,6 @@ urlpatterns = [
     path('favorites/remove/', remove_favorite_drink, name='remove_favorite_drink'),
     path('favorites/', list_favorite_drinks_by_pub, name='list_favorite_drinks_by_pub'),
     path('drink_suggestion/', get_drink_suggestion),
-    path("/<int:pub_id>", tables_of_pub),
+    path("<int:pub_id>/", tables_of_pub),
 
 ]
