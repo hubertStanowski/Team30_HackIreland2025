@@ -1,15 +1,28 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PaperProvider } from 'react-native-paper';
-import NavBar from './components/NavBar.tsx';
-import TopBar from "./components/TopBar.tsx";
-import {customTheme} from "./constants.ts";
+
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import NavBar from './components/NavBar';
+
+const Stack = createStackNavigator();
 
 function App(): React.JSX.Element {
   return (
-    <PaperProvider theme={customTheme}>
-        <TopBar />
-        <NavBar />
-    </PaperProvider>
+    <SafeAreaProvider>
+      <PaperProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Main" component={NavBar} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }
 
