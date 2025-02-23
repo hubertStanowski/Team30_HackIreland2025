@@ -113,7 +113,6 @@ def pay_and_close_tab(request):
     tab.save()
     
     response_data = {
-        'message': 'Payment processed and tab closed successfully.',
         'paymentIntent': intent,
         'ephemeralKey': ephemeral_key.secret,
         'customer': customer.id,
