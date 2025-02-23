@@ -30,7 +30,7 @@ const RegisterScreen = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: name,
+          username: name,
           email: email,
           password: password,
         }),
@@ -72,7 +72,7 @@ const RegisterScreen = () => {
           <Text style={styles.secondtitle}>Register</Text>
 
           <TextInput
-            label="Full Name"
+            label="Username"
             mode="outlined"
             value={name}
             onChangeText={setName}
