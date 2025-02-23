@@ -3,10 +3,44 @@ import { Alert } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Button, View } from 'react-native';
 import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2, PURPLE } from '../constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface CheckoutProps {
   amount: number;
 }
+
+const getTab = async () => {
+  try {
+    const token = await AsyncStorage.getItem('tab');
+    if (token !== null) {
+      console.log('Tab:', token);
+      return token;
+    } else {
+      console.log('No tab found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving tab:', error);
+    return null;
+  }
+};
+
+const getToken = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) {
+      console.log('Token:', token);
+      return token;
+    } else {
+      console.log('No token found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving token:', error);
+    return null;
+  }
+};
+
 
 export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -53,6 +87,28 @@ export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
     if (error) {
       Alert.alert(`Error code: ${error.code}`, error.message);
     } else {
+
+      const token = await getToken();
+      if (!token) {
+        console.error('No token available');
+        return;
+      }
+    const tab = await getTab();
+    if (!tab) {
+      console.error('No tab available');
+      return;
+    }
+      const response = await fetch(`${SERVER_URL}/tabs/close/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tab_id: tab,
+        }),
+      });
+
       Alert.alert('Success', 'Your order is confirmed!');
     }
   };
