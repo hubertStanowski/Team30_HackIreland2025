@@ -155,6 +155,7 @@ def pub_tabs(request):
     {
         "pub_id": <pub_id>
     }
+    
     """
     pub_id = request.data.get('pub_id')
     if not pub_id:
