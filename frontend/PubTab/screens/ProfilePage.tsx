@@ -91,7 +91,7 @@ const ProfilePage = () => {
         <Icon name="person-circle" size={60} color="white" />
         <Text style={styles.username}>{username}</Text>
       </View>
-      <Text style={styles.username}>{email}</Text>
+      <Text style={styles.email}>{email}</Text>
 
       <Button icon="help-circle-outline" mode="contained" onPress={() => setPasswordModalVisible(true)}>
         Change Password
@@ -155,6 +155,11 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: 10,
   },
+    email: {
+        fontSize: 16,
+        color: 'white',
+        marginBottom: 40,
+    },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
