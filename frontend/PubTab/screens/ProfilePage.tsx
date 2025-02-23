@@ -20,11 +20,15 @@ const ProfilePage = () => {
           'Content-Type': 'application/json',
         },
       });
-      return <LoginScreen />;
+      setIsLoggedIn(false); // Set logged-in state to false
     } catch (error) {
       console.error('Error logging out:', error);
     }
   };
+
+  if (!isLoggedIn) {
+    return <LoginScreen />; // Redirect to LoginScreen
+  }
 
   const handlePasswordChange = async () => {
     try {
@@ -48,12 +52,9 @@ const ProfilePage = () => {
     try {
       const response = await fetch(`${SERVER_URL}/pubs/history/`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
       const data = await response.json();
-      setTabHistory(data.history || []);
+      setTabHistory(data || []);
     } catch (error) {
       console.error('Error getting tab history:', error);
     }
