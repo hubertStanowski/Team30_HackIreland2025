@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {View, Text, StyleSheet, Alert, Modal, TextInput, ScrollView, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
 import { PRIMARY_COLOR, PURPLE, SERVER_URL } from '../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,7 +20,7 @@ const ProfilePage = () => {
         const token = await AsyncStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch(`${SERVER_URL}/auth/user/`, {
+        const response = await fetch('https://pubtab.eu.pythonanywhere.com/auth/user', {
           method: 'GET',
           headers: {
             'Authorization': `Token ${token}`,
@@ -28,12 +28,22 @@ const ProfilePage = () => {
           },
         });
 
-        const data = await response.json();
-        if (response.ok) {
+        console.log('Response status:', response.status);
+        const contentType = response.headers.get('Content-Type');
+        console.log('Content-Type:', contentType);
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
           setUsername(data.username);
           setEmail(data.email);
         } else {
-          Alert.alert('Error', data.error || 'An error occurred');
+          const text = await response.text();
+          console.error('Unexpected response body:', text);
+          throw new Error('Unexpected response format');
         }
       } catch (error) {
         console.error('Error fetching username:', error);
