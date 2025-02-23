@@ -8,11 +8,13 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PRIMARY_COLOR, ACCENT_COLOR_2, ACCENT_COLOR_1 } from '../constants';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -20,9 +22,38 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleRegister = () => {
-    console.log(`Registering user: ${name} (${email})`);
-    // TODO: Handle registration logic
+  const handleRegister = async () => {
+    try {
+      const response = await fetch('https://pubtab.eu.pythonanywhere.com/auth/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('token', data.token);
+        navigation.navigate('Main');
+        Alert.alert('Registration Successful', 'You have successfully registered');
+      } else {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          Alert.alert('Registration Failed', errorData.error || 'An error occurred during registration');
+        } else {
+          const errorText = await response.text();
+          Alert.alert('Registration Failed', errorText || 'An error occurred during registration');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Registration Failed', (error as Error).message || 'App error');
+    }
   };
 
   return (
