@@ -8,21 +8,52 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PRIMARY_COLOR, ACCENT_COLOR_2, ACCENT_COLOR_1 } from '../constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    console.log(`Logging in with Email: ${email}`);
-    // TODO: Handle authentication logic
-  };
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('https://pubtab.eu.pythonanywhere.com/auth/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('token', data.token);
+        navigation.navigate('Main');
+        Alert.alert('Login Successful', 'You have successfully logged in');
+      } else {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          Alert.alert('Login Failed', errorData.error || 'An error occurred during login');
+        } else {
+          const errorText = await response.text();
+          Alert.alert('Login Failed', errorText || 'An error occurred during login');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Login Failed', (error as Error).message || 'App error');
+      //console.error('Login error', error);
+    }
+};
 
   return (
     <KeyboardAvoidingView
@@ -40,7 +71,7 @@ const LoginScreen = () => {
           <Text style={styles.secondtitle}>Log in</Text>
 
           <TextInput
-            label="Email"
+            label="Username"
             mode="outlined"
             value={email}
             onChangeText={setEmail}

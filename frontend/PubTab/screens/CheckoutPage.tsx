@@ -4,6 +4,7 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import Checkout from '../components/Checkout';
 import { ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
 import { Card } from 'react-native-paper';
+import {PRIMARY_COLOR} from "../constants.ts";
 
 const publishableKey = 'pk_test_51Qv2pgDyctP2HSWdxnotQWaHiPjgXLjLqKZME5NNvDxkwFxG8tgwzfortBQpQvPsE4kE4PVET3LjDebiREskHIm0009xCJB6Eo';
 
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     width: '100%',
     alignItems: 'center',
+    backgroundColor: PRIMARY_COLOR,
   },
   checkoutButton: {
     marginBottom: 15,
