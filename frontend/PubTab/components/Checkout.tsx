@@ -65,11 +65,11 @@ export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
   }, []);
 
   return (
-    <View style={{ backgroundColor: ACCENT_COLOR_1, padding: 10, borderRadius: 50 }}>
+    <View style={{ backgroundColor: "rgb(99, 81, 159)", padding: 10, borderRadius: 50 }}>
       <Button
-        title="Settle and close tab"
-        onPress={openPaymentSheet}
-        color={ACCENT_COLOR_2}
+      title={`Checkout ${amount}€`}
+      onPress={openPaymentSheet}
+      color={"#FFFFFF"}
       />
     </View>
   );
