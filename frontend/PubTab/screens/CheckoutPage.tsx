@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import Checkout from '../components/Checkout';
@@ -6,6 +6,7 @@ import { ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
 import { Card } from 'react-native-paper';
 import {PRIMARY_COLOR, SERVER_URL} from "../constants.ts";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useEffect } from 'react';
 
 
@@ -40,6 +41,7 @@ const CheckoutPage = () => {
     { name: 'Guinness', count: 2, price: 5.99 },
   ];
   const totalAmount = Math.round(products.reduce((sum, product) => sum + product.count * product.price, 0));
+  const [isStarred, setIsStarred] = useState(false);
 
   return (
     <StripeProvider publishableKey={publishableKey}>
@@ -48,9 +50,16 @@ const CheckoutPage = () => {
           {products.map((product, index) => (
             <Card key={index} style={styles.product}>
               <Card.Title title={`${product.count} x ${product.name}`} titleStyle={styles.productTitleText} />
-              <Card.Content style={styles.cardContent}>
+                <Card.Content style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
                 <Text style={styles.productText}>{`${product.price * product.count}€`}</Text>
-              </Card.Content>
+                <Ionicons 
+                  name={isStarred ? "star" : "star-outline"} 
+                  size={30} 
+                  color={ACCENT_COLOR_2} 
+                  onPress={() => setIsStarred(!isStarred)} 
+                />
+                </Card.Content>
+
             </Card>
           ))}
         </View>
