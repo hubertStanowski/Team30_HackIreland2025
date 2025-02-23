@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, Alert } from 'react-native';
+import { View, StyleSheet, Text, Alert, ScrollView } from 'react-native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import Checkout from '../components/Checkout';
 import { ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, SERVER_URL } from '../constants';
@@ -79,7 +79,7 @@ const CheckoutPage = () => {
   return (
     <StripeProvider publishableKey={publishableKey}>
       <View style={styles.container}>
-        <View style={styles.productList}>
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
           {products.map((product, index) => (
             <Card key={index} style={styles.product}>
               <Card.Title title={`${product.quantity} x ${product.drink}`} titleStyle={styles.productTitleText} />
@@ -97,10 +97,8 @@ const CheckoutPage = () => {
               </Card.Actions>
             </Card>
           ))}
-        </View>
-        <View style={styles.checkoutButton}>
+        </ScrollView>
           <Checkout amount={parseFloat(totalAmount)} />
-        </View>
       </View>
     </StripeProvider>
   );
@@ -109,12 +107,11 @@ const CheckoutPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: PRIMARY_COLOR
+    backgroundColor: PRIMARY_COLOR,
+    padding: 10,
   },
   productList: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'flex-start',
     width: '100%',
     alignItems: 'center',

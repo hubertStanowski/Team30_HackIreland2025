@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
-import { Button, View } from 'react-native';
 import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2, PURPLE } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Button} from "react-native-paper";
 
 interface CheckoutProps {
   amount: number;
@@ -121,12 +121,8 @@ export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
   }, []);
 
   return (
-    <View style={{ backgroundColor: PURPLE, padding: 10, borderRadius: 50 }}>
-      <Button
-      title={`Checkout ${amount}€`}
-      onPress={openPaymentSheet}
-      color={"#FFFFFF"}
-      />
-    </View>
+      <Button icon={'credit-card-outline'} mode="contained" onPress={openPaymentSheet}>
+            Checkout €{amount}
+        </Button>
   );
 }
