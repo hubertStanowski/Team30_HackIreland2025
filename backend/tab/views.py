@@ -134,6 +134,9 @@ t        - limit: Optional spending limit (decimal)
         'tab_items': []  # No tab items when first opened.
     }
 
+    tab.table.busy = True
+    tab.table.save()
+
     return Response(tab_data, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
@@ -154,7 +157,10 @@ def close_tab(request):
         return Response({'error': 'Active tab not found.'}, status=status.HTTP_400_BAD_REQUEST)
 
     tab.paid = True
-    tab.save()
+    table = tab.table
+    table.busy = False
+    table.save()
+    tab.save()  
 
     return Response({'message': 'Tab closed successfully.'}, status=status.HTTP_200_OK)
 
