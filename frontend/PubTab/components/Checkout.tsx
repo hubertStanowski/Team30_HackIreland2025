@@ -7,6 +7,7 @@ import {Button} from "react-native-paper";
 
 interface CheckoutProps {
   amount: number;
+  setReset: any;
 }
 
 const getTab = async () => {
@@ -42,7 +43,7 @@ const getToken = async () => {
 };
 
 
-export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
+export default function Checkout({ amount, setReset }: CheckoutProps): React.JSX.Element {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const fetchPaymentSheetParams = async () => {
@@ -108,6 +109,7 @@ export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
           tab_id: tab,
         }),
       });
+      setReset(true);
 
       Alert.alert('Success', 'Your order is confirmed!');
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
 import { PRIMARY_COLOR, PURPLE, SERVER_URL } from "../constants.ts";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,7 +38,12 @@ const getToken = async () => {
 
 
 
-const HomePage = () => {
+interface HomePageProps {
+  reset: boolean;
+  setReset: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ reset, setReset }) => {
   const openTab = async () => {
     try {
       const token = await getToken();
@@ -61,6 +66,7 @@ const HomePage = () => {
       
       const data = await response.json();
       setInitialized(true);
+      setReset(false);
       if (data && data.id) {
         await AsyncStorage.setItem('tab', data.id.toString());
       }
@@ -75,6 +81,13 @@ const HomePage = () => {
       Alert.alert('Error', 'Could not open tab. Please try again later.');
     }
   };
+
+  useEffect(() => { 
+    if (reset) {
+      setInitialized(false);
+    }
+  }, [reset]);
+
   const [initialized, setInitialized] = useState(false);
   return (
     <View style={styles.container}>

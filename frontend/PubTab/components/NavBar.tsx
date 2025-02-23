@@ -18,17 +18,18 @@ const NavBar = () => {
   ]);
 
   const [update, setUpdate] = useState(0);
+  const [reset, setReset] = useState(false);
   
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
-        return <HomePage />;
+        return <HomePage reset={reset} setReset={setReset}/>;
       case 'explore':
         return <ExplorePage />;
       case 'menu':
         return <MenuPage setUpdate={setUpdate} />;
       case 'checkout':
-        return <CheckoutPage update={update} />;
+        return <CheckoutPage update={update} reset={reset} setReset={setReset} />;
       case 'profile':
         return <ProfilePage />;
       default:

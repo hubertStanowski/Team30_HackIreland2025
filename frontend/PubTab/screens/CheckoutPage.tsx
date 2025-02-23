@@ -34,7 +34,7 @@ interface Product {
   isFavorite?: boolean;
 }
 
-const CheckoutPage = ({ update }: { update: number }) => {
+const CheckoutPage = ({ update, setUpdate, reset, setReset }: { update: number, reset: boolean, setReset: (value: boolean) => void }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -66,6 +66,8 @@ const CheckoutPage = ({ update }: { update: number }) => {
     getItems();
   }, [update]);
 
+
+
   const toggleFavorite = (index: number) => {
     setProducts(prevProducts =>
       prevProducts.map((product, i) =>
@@ -79,26 +81,28 @@ const CheckoutPage = ({ update }: { update: number }) => {
   return (
     <StripeProvider publishableKey={publishableKey}>
       <View style={styles.container}>
+      {!reset && (
         <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
           {products.map((product, index) => (
             <Card key={index} style={styles.product}>
-              <Card.Title title={`${product.quantity} x ${product.drink}`} titleStyle={styles.productTitleText} />
-              <Card.Content style={styles.cardContent}>
-                <Text style={styles.productText}>{`${parseFloat(product.price) * product.quantity}€`}</Text>
-              </Card.Content>
-              <Card.Actions>
-                <Button
-                  icon={product.isFavorite ? "star" : "star-outline"}
-                  onPress={() => toggleFavorite(index)}
-                  color={ACCENT_COLOR_2}
-                >
-                  {product.isFavorite ? "Remove favorite" : "Add favorite"}
-                </Button>
-              </Card.Actions>
+        <Card.Title title={`${product.quantity} x ${product.drink}`} titleStyle={styles.productTitleText} />
+        <Card.Content style={styles.cardContent}>
+          <Text style={styles.productText}>{`${parseFloat(product.price) * product.quantity}€`}</Text>
+        </Card.Content>
+        <Card.Actions>
+          <Button
+            icon={product.isFavorite ? "star" : "star-outline"}
+            onPress={() => toggleFavorite(index)}
+            color={ACCENT_COLOR_2}
+          >
+            {product.isFavorite ? "Remove favorite" : "Add favorite"}
+          </Button>
+        </Card.Actions>
             </Card>
           ))}
         </ScrollView>
-          <Checkout amount={parseFloat(totalAmount)} />
+      )}
+          <Checkout amount={parseFloat(totalAmount)} setReset={setReset} />
       </View>
     </StripeProvider>
   );
