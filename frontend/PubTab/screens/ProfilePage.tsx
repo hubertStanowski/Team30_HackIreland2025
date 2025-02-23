@@ -1,22 +1,61 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
-import { PRIMARY_COLOR, PURPLE, SERVER_URL } from "../constants.ts";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, TextInput, ScrollView } from 'react-native';
+import { PRIMARY_COLOR, PURPLE, SERVER_URL } from '../constants.ts';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import LoginScreen from './LoginScreen.tsx';
 
 const ProfilePage = () => {
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
   const [isHistoryModalVisible, setHistoryModalVisible] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [tabHistory, setTabHistory] = useState([]);
 
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('token');
-      Alert.alert('Logged Out', 'You have been logged out successfully.');
+      await fetch(`${SERVER_URL}/auth/logout/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      LoginScreen();
     } catch (error) {
       console.error('Error logging out:', error);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    try {
+      await fetch(`${SERVER_URL}/auth/change-password/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          old_password: oldPassword,
+          new_password: newPassword,
+        }),
+      });
+      Alert.alert('Password changed successfully');
+    } catch (error) {
+      console.error('Error changing password:', error);
+    }
+  };
+
+  const handleTabHistory = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/pubs/history/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      setTabHistory(data.history || []);
+    } catch (error) {
+      console.error('Error getting tab history:', error);
     }
   };
 
@@ -35,7 +74,10 @@ const ProfilePage = () => {
       </TouchableOpacity>
 
       {/* Tab History */}
-      <TouchableOpacity style={styles.rowSegment} onPress={() => setHistoryModalVisible(true)}>
+      <TouchableOpacity style={styles.rowSegment} onPress={() => {
+        setHistoryModalVisible(true);
+        handleTabHistory();
+      }}>
         <MaterialIcon name="history" size={30} color="white" />
         <Text style={styles.segmentText}>Tab History</Text>
       </TouchableOpacity>
@@ -66,7 +108,7 @@ const ProfilePage = () => {
             value={newPassword}
             onChangeText={setNewPassword}
           />
-          <TouchableOpacity style={styles.confirmButton}>
+          <TouchableOpacity style={styles.confirmButton} onPress={handlePasswordChange}>
             <Text style={styles.buttonText}>Confirm</Text>
           </TouchableOpacity>
         </View>
@@ -78,7 +120,16 @@ const ProfilePage = () => {
           <TouchableOpacity onPress={() => setHistoryModalVisible(false)}>
             <Icon name="arrow-back" size={30} color="white" />
           </TouchableOpacity>
-          <Text style={styles.segmentText}>Tab History will be displayed here</Text>
+          <Text style={styles.segmentText}>Tab History</Text>
+          <ScrollView style={styles.historyContainer}>
+            {tabHistory.length > 0 ? (
+              tabHistory.map((item, index) => (
+                <Text key={index} style={styles.historyText}>{item}</Text>
+              ))
+            ) : (
+              <Text style={styles.historyText}>No history available.</Text>
+            )}
+          </ScrollView>
         </View>
       </Modal>
     </View>
@@ -123,6 +174,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  historyContainer: {
+    marginTop: 10,
+    maxHeight: 300,
+  },
+  historyText: {
+    color: 'white',
+    fontSize: 16,
+    marginVertical: 5,
   },
   input: {
     backgroundColor: 'white',
