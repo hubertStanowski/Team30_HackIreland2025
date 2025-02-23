@@ -1,0 +1,104 @@
+[
+    {
+        "model": "pub.pub",
+        "pk": 1,
+        "fields": {
+            "name": "The Cozy Pint",
+            "address": "123 Main Street",
+            "city": "Dublin",
+            "province": "Leinster",
+            "zip": "D01 ABC",
+            "phone": "+353 123 4567",
+            "email": "info@cozypint.ie",
+            "website": "http://cozypint.ie",
+            "image": ""
+        }
+    },
+    {
+        "model": "pub.table",
+        "pk": 1,
+        "fields": {
+            "pub": 1,
+            "number": 1,
+            "capacity": 4,
+            "location": "Near the window",
+            "description": "Cozy booth with a great view",
+            "bussy": false
+        }
+    },
+    {
+        "model": "pub.drinktype",
+        "pk": 1,
+        "fields": {
+            "name": "Beer"
+        }
+    },
+    {
+        "model": "pub.drinktype",
+        "pk": 2,
+        "fields": {
+            "name": "Whiskey"
+        }
+    },
+    {
+        "model": "pub.drinktype",
+        "pk": 3,
+        "fields": {
+            "name": "Cocktail"
+        }
+    },
+    {
+        "model": "pub.drink",
+        "pk": 1,
+        "fields": {
+            "name": "Guinness",
+            "description": "A classic Irish stout",
+            "price": "5.50",
+            "image": "",
+            "drink_type": 1
+        }
+    },
+    {
+        "model": "pub.drink",
+        "pk": 2,
+        "fields": {
+            "name": "Jameson Whiskey",
+            "description": "Smooth Irish whiskey",
+            "price": "7.00",
+            "image": "",
+            "drink_type": 2
+        }
+    },
+    {
+        "model": "tab.tab",
+        "pk": 1,
+        "fields": {
+            "pub": 1,
+            "table": 1,
+            "total": "12.50",
+            "limit": "50.00",
+            "paid": false,
+            "customer": 1,
+            "created": "2025-02-21T20:00:00Z",
+            "updated": "2025-02-21T21:00:00Z"
+        }
+    },
+    {
+        "model": "tab.tabitem",
+        "pk": 1,
+        "fields": {
+            "tab": 1,
+            "drink": 1,
+            "quantity": 2
+        }
+    },
+    {
+        "model": "tab.tabitem",
+        "pk": 2,
+        "fields": {
+            "tab": 1,
+            "drink": 2,
+            "quantity": 1
+        }
+    }
+]
