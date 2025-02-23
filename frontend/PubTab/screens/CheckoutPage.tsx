@@ -43,6 +43,15 @@ const getTab = async () => {
   }
 };
 
+interface Product {
+  name: string;
+  description: string;
+  price: string;
+  drink_type: string;
+  image: string | null;
+
+}
+
 
 const CheckoutPage = () => {
 
@@ -53,11 +62,11 @@ const CheckoutPage = () => {
         console.error('No token available');
         return;
       }
-      // const tab = await getTab();
-      // if (!tab) {
-      //   console.error('No tab available');
-      //   return;
-      // }
+      const tab = await getTab();
+      if (!tab) {
+        console.error('No tab available');
+        return;
+      }
       // Adjust payload: only send table and limit.
       const response = await fetch(`${SERVER_URL}/tabs/items/`, {
         method: 'POST',
@@ -66,13 +75,13 @@ const CheckoutPage = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tab_id: 1
+          tab_id: tab
         }),
       });
       
       const data = await response.json();
       if (response.ok) {
-        Alert.alert('Tab Opened', `Response: ${JSON.stringify(data)}`);
+        Alert.alert('Items', `Response: ${JSON.stringify(data)}`);
       } else {
         Alert.alert('Error2', data.error || 'An error occurred');
       }
@@ -81,16 +90,37 @@ const CheckoutPage = () => {
       Alert.alert('Error2', 'Could not open tab. Please try again later.');
     }
   };
-  getItems();
+  useEffect(() => {
+    getItems();
+  }, []);
+  const [products, setProducts] = useState<Product[]>([
+    {
+      name: 'Beer',
+      description: 'A refreshing beer',
+      price: '5.00',
+      drink_type: 'alcoholic',
+      image: null,
+      starred: false,
+    },
+    {
+      name: 'Wine',
+      description: 'A fine wine',
+      price: '10.00',
+      drink_type: 'alcoholic',
+      image: null,
+      starred: false,
+    },
+    {
+      name: 'Soda',
+      description: 'A fizzy soda',
+      price: '3.00',
+      drink_type: 'non-alcoholic',
+      image: null,
+      starred: false,
+    },
+  ]);
 
-  const products = [
-    { name: 'Guinness', count: 2, price: 5.99 },
-    { name: 'Guinness', count: 2, price: 5.99 },
-    { name: 'Guinness', count: 2, price: 5.99 },
-    { name: 'Guinness', count: 2, price: 5.99 },
-    { name: 'Guinness', count: 2, price: 5.99 },
-  ];
-  const totalAmount = Math.round(products.reduce((sum, product) => sum + product.count * product.price, 0));
+  const totalAmount = Math.round(products.reduce((sum, product) => sum + 2 * parseFloat(product.price), 0));
   const [isStarred, setIsStarred] = useState(false);
 
   return (
@@ -99,9 +129,9 @@ const CheckoutPage = () => {
         <View style={styles.productList}>
           {products.map((product, index) => (
             <Card key={index} style={styles.product}>
-              <Card.Title title={`${product.count} x ${product.name}`} titleStyle={styles.productTitleText} />
+              <Card.Title title={`2 x ${product.name}`} titleStyle={styles.productTitleText} />
                 <Card.Content style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={styles.productText}>{`${product.price * product.count}€`}</Text>
+                <Text style={styles.productText}>{`${parseFloat(product.price) * 2}€`}</Text>
                 <Ionicons 
                   name={isStarred ? "star" : "star-outline"} 
                   size={30} 

@@ -66,7 +66,7 @@ const HomePage = () => {
       }
   
       if (response.ok) {
-        Alert.alert('Tab Opened', `Response: ${JSON.stringify(data)}`);
+        Alert.alert('Tab Opened1', `Response: ${JSON.stringify(data)}`);
       } else {
         Alert.alert('Error', data.error || 'An error occurred');
       }
@@ -79,7 +79,7 @@ const HomePage = () => {
   return (
     <View style={styles.container}>
       {initialized ? (
-        <Text style={[styles.text, { fontSize: 60 }]}>Welcome to HomePage</Text>
+        <Text style={[styles.text, { fontSize: 70 }]}>Welcome to HomePage</Text>
       ) : (
         <View style={{ backgroundColor: PURPLE, paddingVertical: 20, paddingHorizontal: 60, borderRadius: 50 }}>
           <Button
