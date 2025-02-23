@@ -1,22 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../types'; // Adjust the path as necessary
+import { useNavigation } from '@react-navigation/native';
 import { PRIMARY_COLOR, PURPLE, SERVER_URL } from "../constants.ts";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+const ProfilePage = () => {
   const navigation = useNavigation();
 
   const handleLogout = async () => {
     try {
       // Placeholder for logout request
       await AsyncStorage.removeItem('token');
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LoginPage' }],
-      });
+      navigation.replace('LoginPage');
     } catch (error) {
       console.error('Error logging out:', error);
     }
