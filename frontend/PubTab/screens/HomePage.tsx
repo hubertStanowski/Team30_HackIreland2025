@@ -12,7 +12,6 @@ const getToken = async () => {
     return null;
   }
 };
-
 interface HomePageProps {
   reset: boolean;
   setReset: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,14 +19,14 @@ interface HomePageProps {
   setTabInitialized: (value: boolean) => void;
   selectedPub: number;
   setSelectedPub: React.Dispatch<React.SetStateAction<number>>;
+  pubName: string;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabInitialized, selectedPub, setSelectedPub }) => {
+const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabInitialized, selectedPub, setSelectedPub, pubName }) => {
   const [initialized, setInitialized] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [pubName, setPubName] = useState<string>("");
 
   const openTab = async (tableId: number) => {
     try {
@@ -118,7 +117,7 @@ const fetchTables = async () => {
     <View style={styles.container}>
       {initialized && selectedTable !== null ? (
         <View>
-          <Text style={styles.pubText}>Welcome to {pubName}</Text>
+            <Text style={styles.pubText}>Welcome {pubName ? `to ${pubName}` : ''}</Text>
           <Divider style={{ marginTop: 15, marginBottom: 15 }} />
           <Text style={styles.tableText}>Table {selectedTable}</Text>
           <Divider style={{ marginTop: 15, marginBottom: 15 }} />

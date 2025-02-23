@@ -33,7 +33,7 @@ const getTab = async () => {
   }
 };
 
-const ExplorePage = ({ setSelectedPub, tabInitialized }: { setSelectedPub: any, tabInitialized: boolean }) => {
+const ExplorePage = ({ setSelectedPub, tabInitialized, setPubName }: { setSelectedPub: any, tabInitialized: boolean, setPubName: (name: string) => void }) => {
   const [pubList, setPubList] = useState<Pub[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPubs, setFilteredPubs] = useState<Pub[]>([]);
@@ -108,6 +108,7 @@ const ExplorePage = ({ setSelectedPub, tabInitialized }: { setSelectedPub: any, 
                   <Card.Actions>
                   <Button icon="currency-eur" onPress={() => {
                     setSelectedPub(pub.id);
+                    setPubName(pub.name);
                   }} color={ACCENT_COLOR_2}>
                     Start a Tab
                   </Button>
