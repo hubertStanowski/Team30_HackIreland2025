@@ -143,6 +143,7 @@ def pub_products(request):
     products_list = []
     for drink in drinks:
         products_list.append({
+            "id": drink.id,  # Added drink id to the response.
             "name": drink.name,
             "description": drink.description,
             "price": str(drink.price),
