@@ -7,13 +7,14 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 import stripe
-from .serializers import StripeSerializer
+from .serializers import StripeSerializer, TabSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import Tab, TabItem
 from pub.models import Table
 from pub.models import Drink
 from django.shortcuts import get_object_or_404
+
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
@@ -150,7 +151,8 @@ def open_tab(request):
         'tab_items': []  # No tab items when first opened.
     }
 
-    return Response(tab_data, status=status.HTTP_201_CREATED)
+    serializer = TabSerializer(tab)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
