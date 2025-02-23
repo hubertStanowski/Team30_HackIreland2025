@@ -67,7 +67,7 @@ const groupByDrinkType = (products: Product[]) => {
     return acc;
   }, {} as Record<string, Product[]>);
 };
-const MenuPage = ({ setUpdate }: { setUpdate: any }) => {
+const MenuPage = ({ setUpdate, selectedPub }: { setUpdate: any, selectedPub: number }) => {
   const [groupedItems, setGroupedItems] = useState<Record<string, Product[]>>({});
   const [visibleDetails, setVisibleDetails] = useState<Record<number, boolean>>({});
 
@@ -79,7 +79,7 @@ const MenuPage = ({ setUpdate }: { setUpdate: any }) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ pub_id: 1 }),
+          body: JSON.stringify({ pub_id: selectedPub }),
         });
         const data = await response.json();
         setGroupedItems(groupByDrinkType(data.products));
@@ -88,7 +88,7 @@ const MenuPage = ({ setUpdate }: { setUpdate: any }) => {
       }
     };
     fetchPubs();
-  }, []);
+  }, [selectedPub]);
 
   const toggleDetails = (productId: number) => {
     setVisibleDetails((prevState) => ({

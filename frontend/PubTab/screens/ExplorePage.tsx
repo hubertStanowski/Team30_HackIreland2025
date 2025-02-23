@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Linking, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Linking, ScrollView, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, SERVER_URL } from '../constants';
 import { Card, Button } from 'react-native-paper';
 
@@ -16,7 +16,7 @@ interface Pub {
   image: string | null;
 }
 
-const ExplorePage = () => {
+const ExplorePage = ({ setSelectedPub }: { setSelectedPub: any}) => {
   const [pubList, setPubList] = useState<Pub[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPubs, setFilteredPubs] = useState<Pub[]>([]);
@@ -85,10 +85,13 @@ const ExplorePage = () => {
                 >
                   {pub.website}
                 </Text>
+
                 <Card.Actions>
-                  <Button icon="currency-eur" onPress={() => {}} color={ACCENT_COLOR_2}>
-                    Start a Tab
-                  </Button>
+                    <Button icon="currency-eur" onPress={() => {
+                      setSelectedPub(pub.id);
+                    }} color={ACCENT_COLOR_2}>
+                      Start a Tab
+                    </Button>
                 </Card.Actions>
               </Card.Content>
             )}
