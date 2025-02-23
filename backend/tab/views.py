@@ -43,7 +43,83 @@ def tab_list(request):
     return Response(tabs_list)
 
 
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def pay_and_close_tab(request):
+    """
+    Process a payment with Stripe and close (mark as paid) an active tab.
+    
+    Expected POST data:
+        - tab_id: ID of the active tab to be closed.
+        - amount: The amount to be charged (in the tab's currency).
+        - currency: The currency in which the amount is charged.
+    
+    Steps:
+        1. Validate input and ensure the tab exists and belongs to the user.
+        2. Process the payment via Stripe.
+        3. If the payment is successful, mark the tab as paid and free the table.
+        4. Return payment details along with a confirmation message.
+    """
+    # Validate input parameters using the StripeSerializer
+    serializer = StripeSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    validated_data = serializer.validated_data
+    amount = validated_data.get('amount')
+    currency = validated_data.get('currency')
+    tab_id = request.data.get('tab_id')
+    
+    if not tab_id:
+        return Response({'error': 'tab_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Retrieve the tab and ensure it belongs to the authenticated user and is unpaid
+    try:
+        tab = Tab.objects.get(id=tab_id, customer=request.user, paid=False)
+    except Tab.DoesNotExist:
+        return Response({'error': 'Active tab not found.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    stripe.api_key = os.getenv('STRIPE_SK')
+    
+    try:
+        # Create a new customer in Stripe
+        customer = stripe.Customer.create()
 
+        # Create an ephemeral key for the customer
+        ephemeral_key = stripe.EphemeralKey.create(
+            customer=customer['id'],
+            stripe_version='2025-01-27.acacia',
+        )
+
+        # Create a PaymentIntent with automatic payment methods enabled.
+        intent = stripe.PaymentIntent.create(
+            amount=int(amount * 100),  # Convert to cents
+            currency=currency,
+            customer=customer["id"],
+            automatic_payment_methods={'enabled': True},
+        )
+    except stripe.error.StripeError as e:
+        return Response({'error': f'Stripe error: {str(e)}'}, status=status.HTTP_402_PAYMENT_REQUIRED)
+    except Exception as e:
+        return Response({'error': f'Payment processing error: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # If payment is successful (assuming success is determined client-side by confirming the PaymentIntent),
+    # update the tab to mark it as paid and free the table.
+    tab.paid = True
+    table = tab.table
+    table.busy = False
+    table.save()
+    tab.save()
+    
+    response_data = {
+        'message': 'Payment processed and tab closed successfully.',
+        'paymentIntent': intent,
+        'ephemeralKey': ephemeral_key.secret,
+        'customer': customer.id,
+        'tab_id': tab.id
+    }
+    return Response(response_data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
