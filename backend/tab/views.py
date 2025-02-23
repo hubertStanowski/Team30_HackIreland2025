@@ -223,7 +223,7 @@ def open_tab(request):
         'customer': tab.customer.username,
         'tab_items': []  # No tab items when first opened.
     }
-
+    
     return Response(tab_data, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])

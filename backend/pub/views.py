@@ -1,6 +1,10 @@
 from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from tab.models import Tab, TabItem
+from .models import Pub
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.db.models import Count, Q
@@ -348,4 +352,3 @@ def list_favorite_drinks_by_pub(request):
         })
 
     return Response({"favorites": favorite_list}, status=status.HTTP_200_OK)
-

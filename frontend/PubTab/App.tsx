@@ -1,33 +1,31 @@
 import React from 'react';
-import { StripeProvider } from '@stripe/stripe-react-native';
-import { View, StyleSheet } from 'react-native';
-import CheckoutScreen from './components/CheckoutScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { PaperProvider } from 'react-native-paper';
+
+import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
+import Main from './components/Main';
+import TabHistoryPage from "./screens/TabHistoryPage.tsx";
+
+const Stack = createStackNavigator();
 
 function App(): React.JSX.Element {
-
-  const publishableKey = "pk_test_51Qv2pgDyctP2HSWdxnotQWaHiPjgXLjLqKZME5NNvDxkwFxG8tgwzfortBQpQvPsE4kE4PVET3LjDebiREskHIm0009xCJB6Eo"
-
   return (
-    <StripeProvider publishableKey={publishableKey}>
-      <View style={styles.container}>
-        <View style={styles.checkoutButton}><CheckoutScreen /></View>
-          
-      </View>
-    </StripeProvider>
+    <SafeAreaProvider>
+      <PaperProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Main" component={Main} />
+            <Stack.Screen name="TabHistoryPage" component={TabHistoryPage} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
+    </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkoutButton: {
-    backgroundColor: 'red',
-    padding: 10,
-    borderRadius: 5,
-  },
-});
 
 export default App;
