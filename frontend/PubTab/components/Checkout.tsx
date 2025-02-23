@@ -5,10 +5,7 @@ import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2, PURPLE } from '../constants
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Button} from "react-native-paper";
 
-interface CheckoutProps {
-  amount: number;
-  setReset: any;
-}
+
 
 const getTab = async () => {
   try {
@@ -41,9 +38,13 @@ const getToken = async () => {
     return null;
   }
 };
+interface CheckoutProps {
+  amount: number;
+  setReset: any;
+  setUpdate: any;
+}
 
-
-export default function Checkout({ amount, setReset }: CheckoutProps): React.JSX.Element {
+export default function Checkout({ amount, setReset, setUpdate }: CheckoutProps): React.JSX.Element {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const fetchPaymentSheetParams = async () => {
@@ -110,6 +111,7 @@ export default function Checkout({ amount, setReset }: CheckoutProps): React.JSX
         }),
       });
       setReset(true);
+      setUpdate(Math.random());
 
       Alert.alert('Success', 'Your order is confirmed!');
     }

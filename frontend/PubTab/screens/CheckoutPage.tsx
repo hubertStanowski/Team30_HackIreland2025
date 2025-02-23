@@ -34,7 +34,7 @@ interface Product {
   isFavorite?: boolean;
 }
 
-const CheckoutPage = ({ update, setUpdate, reset, setReset }: { update: number, reset: boolean, setReset: (value: boolean) => void }) => {
+const CheckoutPage = ({ update, setUpdate, reset, setReset }: { update: number, setUpdate: (value: number) => void, reset: boolean, setReset: (value: boolean) => void }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -102,7 +102,9 @@ const CheckoutPage = ({ update, setUpdate, reset, setReset }: { update: number, 
           ))}
         </ScrollView>
       )}
-          <Checkout amount={parseFloat(totalAmount)} setReset={setReset} />
+      {!reset && (
+          <Checkout amount={parseFloat(totalAmount)} setReset={setReset} setUpdate={setUpdate} />
+      )}
       </View>
     </StripeProvider>
   );
