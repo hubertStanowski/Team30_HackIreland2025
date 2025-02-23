@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -44,3 +45,14 @@ class DrinkType(models.Model):
 
     def __str__(self):
         return self.name
+    
+class FavoriteDrink(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorite_drinks')
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE, related_name='favorited_by')
+    favorited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'drink')
+
+    def __str__(self):
+        return f"{self.user.username} favorited {self.drink.name}"
