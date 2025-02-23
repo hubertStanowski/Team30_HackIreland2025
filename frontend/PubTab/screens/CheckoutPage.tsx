@@ -1,0 +1,113 @@
+import React, { useState } from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
+import Checkout from '../components/Checkout';
+import { ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
+import { Card } from 'react-native-paper';
+import {PRIMARY_COLOR, SERVER_URL} from "../constants.ts";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useEffect } from 'react';
+
+
+const publishableKey = 'pk_test_51Qv2pgDyctP2HSWdxnotQWaHiPjgXLjLqKZME5NNvDxkwFxG8tgwzfortBQpQvPsE4kE4PVET3LjDebiREskHIm0009xCJB6Eo';
+const getToken = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    if (token !== null) {
+      // Token exists
+      console.log('Token:', token);
+      return token;
+    } else {
+      // Token does not exist
+      console.log('No token found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving token:', error);
+    return null;
+  }
+};
+
+const CheckoutPage = () => {
+
+
+
+  const products = [
+    { name: 'Guinness', count: 2, price: 5.99 },
+    { name: 'Guinness', count: 2, price: 5.99 },
+    { name: 'Guinness', count: 2, price: 5.99 },
+    { name: 'Guinness', count: 2, price: 5.99 },
+    { name: 'Guinness', count: 2, price: 5.99 },
+  ];
+  const totalAmount = Math.round(products.reduce((sum, product) => sum + product.count * product.price, 0));
+  const [isStarred, setIsStarred] = useState(false);
+
+  return (
+    <StripeProvider publishableKey={publishableKey}>
+      <View style={styles.container}>
+        <View style={styles.productList}>
+          {products.map((product, index) => (
+            <Card key={index} style={styles.product}>
+              <Card.Title title={`${product.count} x ${product.name}`} titleStyle={styles.productTitleText} />
+                <Card.Content style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+                <Text style={styles.productText}>{`${product.price * product.count}€`}</Text>
+                <Ionicons 
+                  name={isStarred ? "star" : "star-outline"} 
+                  size={30} 
+                  color={ACCENT_COLOR_2} 
+                  onPress={() => setIsStarred(!isStarred)} 
+                />
+                </Card.Content>
+
+            </Card>
+          ))}
+        </View>
+        <View style={styles.checkoutButton}>
+          <Checkout amount={totalAmount}/>
+        </View>
+      </View>
+    </StripeProvider>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: PRIMARY_COLOR
+  },
+  productList: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    width: '100%',
+    alignItems: 'center',
+  },
+  checkoutButton: {
+    marginBottom: 15,
+  },
+  product: {
+    marginVertical: 5,
+    width: '90%',
+    backgroundColor: ACCENT_COLOR_1,
+    borderRadius: 15,
+  },
+  productText: {
+    color: "#FAF3E0",
+    fontSize: 16,
+    fontFamily: 'Sf Pro Display',
+  },
+  productTitleText: {
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginBottom: 0, // Reduce the margin bottom to decrease padding
+    color: ACCENT_COLOR_2,
+    fontFamily: 'Playfair Display',
+  },
+  cardContent: {
+    paddingTop: 0, // Reduce the padding top to decrease padding
+  },
+});
+
+export default CheckoutPage;
