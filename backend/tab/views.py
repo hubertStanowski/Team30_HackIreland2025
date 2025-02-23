@@ -116,7 +116,6 @@ def pay_and_close_tab(request):
         'paymentIntent': intent,
         'ephemeralKey': ephemeral_key.secret,
         'customer': customer.id,
-        'tab_id': tab.id
     }
     return Response(response_data, status=status.HTTP_200_OK)
 
