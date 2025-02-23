@@ -38,7 +38,7 @@ const addToTab = async (product: Product, setUpdate: any) => {
     if (!token) return;
     const tab = await getTab();
     if (!tab) {
-      Alert.alert('Add to Tab', 'No tab found');
+      Alert.alert('Create a tab first!');
       return;
     }
 
@@ -52,7 +52,7 @@ const addToTab = async (product: Product, setUpdate: any) => {
     });
     const data = await response.json();
     setUpdate(Math.random());
-    Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
+    // Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
   } catch (error) {
     console.error('Error adding item to tab:', error);
   }

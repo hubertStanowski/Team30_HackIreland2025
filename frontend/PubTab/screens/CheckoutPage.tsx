@@ -57,7 +57,7 @@ const CheckoutPage = ({ update, setUpdate, reset, setReset }: { update: number, 
         if (response.ok) {
           setProducts(data.items.map((item: any) => ({ ...item, isFavorite: false })));
         } else {
-          Alert.alert('Error', data.error || 'An error occurred');
+          // Alert.alert('Error', data.error || 'An error occurred');
         }
       } catch (error) {
         console.error('Error fetching items:', error);

@@ -38,7 +38,7 @@ const LoginScreen = () => {
         const data = await response.json();
         await AsyncStorage.setItem('token', data.token);
         navigation.navigate('Main');
-        Alert.alert('Login Successful', 'You have successfully logged in');
+        // Alert.alert('Login Successful', 'You have successfully logged in');
       } else {
         const contentType = response.headers.get('Content-Type');
         if (contentType && contentType.includes('application/json')) {

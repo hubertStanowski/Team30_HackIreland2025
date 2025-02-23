@@ -59,7 +59,7 @@ const RegisterScreen = () => {
         const data = await response.json();
         await AsyncStorage.setItem('token', data.token);
         navigation.navigate('Main');
-        Alert.alert('Registration Successful', 'You have successfully registered');
+        // Alert.alert('Registration Successful', 'You have successfully registered');
       } else {
         const contentType = response.headers.get('Content-Type');
         if (contentType && contentType.includes('application/json')) {

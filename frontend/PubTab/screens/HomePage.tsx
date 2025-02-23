@@ -59,11 +59,11 @@ const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabI
       setReset(false);
       setUpdate(Math.random());
 
-      if (response.ok) {
-        Alert.alert('Tab Opened', `Table ${tableId} selected`);
-      } else {
-        Alert.alert('Error', data.error || 'An error occurred');
-      }
+      // if (response.ok) {
+      //   Alert.alert('Tab Opened', `Table ${tableId} selected`);
+      // } else {
+      //   Alert.alert('Error', data.error || 'An error occurred');
+      // }
 
       setModalVisible(false); // Close modal after selection
     } catch (error) {
