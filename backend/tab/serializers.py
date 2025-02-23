@@ -11,12 +11,10 @@ class TabSerializer(serializers.ModelSerializer):
 class StripeSerializer(serializers.Serializer):
     amount = serializers.DecimalField(max_digits=5, decimal_places=2)
     currency = serializers.CharField(max_length=3)
-
     def create(self, validated_data):
         amount = validated_data.get('amount')
         currency = validated_data.get('currency')
-
-        return amount, currency
+        return amount, currency, 
 
     def update(self, instance, validated_data):
         pass
