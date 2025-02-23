@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pub Tabs Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .card-header {
+      background-color: #007bff;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h1 class="mb-4 text-center">Pub Tabs Dashboard</h1>
+    
+    <!-- Pub ID Input -->
+    <div class="mb-4 row justify-content-center">
+      <div class="col-md-4">
+        <label for="pubId" class="form-label">Enter Pub ID:</label>
+        <input type="number" class="form-control" id="pubId" placeholder="e.g. 1">
+      </div>
+    </div>
+    
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" id="dashboardTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="unpaid-tab" data-bs-toggle="tab" data-bs-target="#unpaid" type="button" role="tab" aria-controls="unpaid" aria-selected="true">
+          Unpaid Tabs
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="all-tabs" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="false">
+          All Tabs
+        </button>
+      </li>
+    </ul>
+    
+    <!-- Tab panes -->
+    <div class="tab-content mt-4">
+      <!-- Unpaid Tabs Panel -->
+      <div class="tab-pane fade show active" id="unpaid" role="tabpanel" aria-labelledby="unpaid-tab">
+        <div class="d-flex justify-content-end mb-3">
+          <button id="fetchUnpaid" class="btn btn-primary">Fetch Unpaid Tabs</button>
+        </div>
+        <div id="unpaidResults"></div>
+      </div>
+      
+      <!-- All Tabs Panel -->
+      <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tabs">
+        <div class="d-flex justify-content-end mb-3">
+          <button id="fetchAll" class="btn btn-primary">Fetch All Tabs</button>
+        </div>
+        <div id="allResults"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap Bundle JS (with Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Dashboard JavaScript -->
+  <script>
+    // Endpoint URLs
+    const apiUnpaidUrl = "http://localhost:8000/pubs/unpaid_tabs/";
+    const apiTabsUrl = "http://localhost:8000/pubs/tabs/";
+
+    // Helper to display errors inside the result divs
+    function displayError(containerId, errorMsg) {
+      document.getElementById(containerId).innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          <strong>Error:</strong> ${errorMsg}
+        </div>
+      `;
+    }
+    
+    // Fetch Unpaid Tabs Data
+    document.getElementById('fetchUnpaid').addEventListener('click', function() {
+      const pubId = document.getElementById('pubId').value;
+      if (!pubId) {
+        displayError('unpaidResults', "Please enter a Pub ID.");
+        return;
+      }
+      
+      fetch(apiUnpaidUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ pub_id: pubId })
+      })
+      .then(response => {
+        if (!response.ok) {
+          // Show error with status code if response is not ok.
+          throw new Error("Server responded with status " + response.status);
+        }
+        return response.text();
+      })
+      .then(text => {
+        if (!text) {
+          throw new Error("No data returned from the server.");
+        }
+        const data = JSON.parse(text);
+        // If the API returned an error message, display it.
+        if(data.error){
+          throw new Error(data.error);
+        }
+        document.getElementById('unpaidResults').innerHTML = renderTabs(data);
+      })
+      .catch(error => {
+        console.error('Error fetching unpaid tabs data:', error);
+        displayError('unpaidResults', error.message);
+      });
+    });
+    
+    // Fetch All Tabs Data
+    document.getElementById('fetchAll').addEventListener('click', function() {
+      const pubId = document.getElementById('pubId').value;
+      if (!pubId) {
+        displayError('allResults', "Please enter a Pub ID.");
+        return;
+      }
+      
+      fetch(apiTabsUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ pub_id: pubId })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Server responded with status " + response.status);
+        }
+        return response.text();
+      })
+      .then(text => {
+        if (!text) {
+          throw new Error("No data returned from the server.");
+        }
+        const data = JSON.parse(text);
+        if(data.error){
+          throw new Error(data.error);
+        }
+        document.getElementById('allResults').innerHTML = renderTabs(data);
+      })
+      .catch(error => {
+        console.error('Error fetching all tabs data:', error);
+        displayError('allResults', error.message);
+      });
+    });
+    
+    // Render the returned tabs data into HTML cards
+    function renderTabs(data) {
+      let html = `<h3>Pub: ${data.pub.name} (ID: ${data.pub.id})</h3>`;
+      if (!data.tabs || data.tabs.length === 0) {
+        html += `<div class="alert alert-info">No tabs found for this pub.</div>`;
+      } else {
+        data.tabs.forEach(tab => {
+          html += `
+            <div class="card mb-3">
+              <div class="card-header">
+                Table Number: ${tab.table_number} | Total: ${tab.total} | ${tab.paid ? "Paid" : "Unpaid"}
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">Tab ID: ${tab.tab_id}</h5>
+                <p class="card-text">
+                  Created: ${tab.created}<br>
+                  Updated: ${tab.updated}
+                </p>
+                <h6>Items:</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Drink</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${tab.items.map(item => `
+                        <tr>
+                          <td>${item.drink}</td>
+                          <td>${item.price}</td>
+                          <td>${item.quantity}</td>
+                          <td>${item.subtotal}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      return html;
+    }
+  </script>
+</body>
+</html>

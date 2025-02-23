@@ -7,6 +7,10 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.shortcuts import render
+
+def dashboard_view(request):
+    return render(request, '/Users/timothytay/Desktop/team30/Team30_HackIreland2025/backend/backend/dashboard.html')
 
 @csrf_exempt
 @api_view(['POST'])
