@@ -8,11 +8,13 @@ import {
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { PRIMARY_COLOR, ACCENT_COLOR_2, ACCENT_COLOR_1 } from '../constants';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -20,9 +22,57 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
-  const handleRegister = () => {
-    console.log(`Registering user: ${name} (${email})`);
-    // TODO: Handle registration logic
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+
+  const handleRegister = async () => {
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      Alert.alert('Weak Password', 'Password must be at least 8 characters long.');
+      return;
+    }
+
+    try {
+      const response = await fetch('https://pubtab.eu.pythonanywhere.com/auth/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: name,
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('token', data.token);
+        navigation.navigate('Main');
+        Alert.alert('Registration Successful', 'You have successfully registered');
+      } else {
+        const contentType = response.headers.get('Content-Type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          Alert.alert('Registration Failed', errorData.error || 'An error occurred during registration');
+        } else {
+          const errorText = await response.text();
+          Alert.alert('Registration Failed', errorText || 'An error occurred during registration');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Registration Failed', (error as Error).message || 'App error');
+    }
   };
 
   return (
@@ -32,7 +82,6 @@ const RegisterScreen = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {/* Header (Icon + Title) */}
           <View style={styles.header}>
             <Ionicons name="beer-outline" size={40} color={ACCENT_COLOR_2} />
             <Text style={styles.title}>PubTab</Text>
@@ -41,7 +90,7 @@ const RegisterScreen = () => {
           <Text style={styles.secondtitle}>Register</Text>
 
           <TextInput
-            label="Full Name"
+            label="Username"
             mode="outlined"
             value={name}
             onChangeText={setName}
@@ -100,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     color: ACCENT_COLOR_2,
-    marginLeft: 10, // Space between icon and text
+    marginLeft: 10,
   },
   secondtitle: {
     fontSize: 28,
@@ -110,11 +159,11 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   input: {
-    width: '100%', // Ensure full width
+    width: '100%',
     marginBottom: 15,
   },
   button: {
-    width: '100%', // Ensure button is properly centered
+    width: '100%',
     marginTop: 10,
   },
   link: {

@@ -13,7 +13,7 @@ const NavBar = () => {
     { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
     { key: 'explore', title: 'Explore', focusedIcon: 'magnify', unfocusedIcon: 'magnify' },
     { key: 'menu', title: 'Menu', focusedIcon: 'food', unfocusedIcon: 'food-outline' },
-    { key: 'checkout', title: 'Checkout', focusedIcon: 'cart', unfocusedIcon: 'cart-outline' },
+    { key: 'checkout', title: 'Tab', focusedIcon: 'cart', unfocusedIcon: 'cart-outline' },
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
 

@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Linking, ScrollView, Alert, Button } from 'react-native';
-import {ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, PURPLE, SERVER_URL} from "../constants.ts";
-import { useEffect } from 'react';
-import { Card } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
+import { Card, Button } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, SERVER_URL } from '../constants';
 
 interface Product {
   id: number;
@@ -17,14 +15,7 @@ interface Product {
 
 const getTab = async () => {
   try {
-    const token = await AsyncStorage.getItem('tab');
-    if (token !== null) {
-      console.log('Tab:', token);
-      return token;
-    } else {
-      console.log('No tab found');
-      return null;
-    }
+    return await AsyncStorage.getItem('tab');
   } catch (error) {
     console.error('Error retrieving tab:', error);
     return null;
@@ -33,50 +24,51 @@ const getTab = async () => {
 
 const getToken = async () => {
   try {
-    const token = await AsyncStorage.getItem('token');
-    if (token !== null) {
-      console.log('Token:', token);
-      return token;
-    } else {
-      console.log('No token found');
-      return null;
-    }
+    return await AsyncStorage.getItem('token');
   } catch (error) {
     console.error('Error retrieving token:', error);
     return null;
   }
 };
 
-
 const addToTab = async (product: Product) => {
   try {
     const token = await getToken();
-      if (!token) {
-        console.error('No token available');
-        return;
-      }
+    if (!token) return;
     const tab = await getTab();
-    if (tab !== null) {
-      const response = await fetch(`${SERVER_URL}/tabs/add/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`,
-        },
-        body: JSON.stringify({ tab_id: tab, drink: product.id, quantity: 1 }),
-      });
-      const data = await response.json();
-      Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
-    } else {
+    if (!tab) {
       Alert.alert('Add to Tab', 'No tab found');
+      return;
     }
+
+    const response = await fetch(`${SERVER_URL}/tabs/add/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify({ tab_id: tab, drink: product.id, quantity: 1 }),
+    });
+    const data = await response.json();
+    Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
   } catch (error) {
     console.error('Error adding item to tab:', error);
   }
-}
+};
+
+const groupByDrinkType = (products: Product[]) => {
+  return products.reduce((acc, product) => {
+    if (!acc[product.drink_type]) {
+      acc[product.drink_type] = [];
+    }
+    acc[product.drink_type].push(product);
+    return acc;
+  }, {} as Record<string, Product[]>);
+};
 
 const MenuPage = () => {
-  const [itemList, setItemList] = useState<Product[]>([]);
+  const [groupedItems, setGroupedItems] = useState<Record<string, Product[]>>({});
+  const [visibleDetails, setVisibleDetails] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     const fetchPubs = async () => {
@@ -89,77 +81,89 @@ const MenuPage = () => {
           body: JSON.stringify({ pub_id: 1 }),
         });
         const data = await response.json();
-        Alert.alert('Menu Items', `Response: ${JSON.stringify(data)}`);
-        setItemList(data.products);
+        setGroupedItems(groupByDrinkType(data.products));
       } catch (error) {
         console.error('Error fetching pub list:', error);
       }
     };
-
     fetchPubs();
   }, []);
 
+  const toggleDetails = (productId: number) => {
+    setVisibleDetails((prevState) => ({
+      ...prevState,
+      [productId]: !prevState[productId],
+    }));
+  };
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-        {itemList.map((product, index) => (
-          <Card key={index} style={styles.item}>
-        <Card.Title titleStyle={styles.itemTitleText} title={product.name} />
-        <Card.Content>
-          <View style={{ marginBottom: 10 }}>
-            <Text style={styles.itemText}>Name: {product.name}</Text>
-            <Text style={styles.itemText}>Description: {product.description}</Text>
-            <Text style={styles.itemText}>Price: {product.price}</Text>
-            <Text style={styles.itemText}>Drink Type: {product.drink_type}</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        {Object.entries(groupedItems).map(([drinkType, products]) => (
+          <View key={drinkType}>
+            <Text style={styles.sectionTitle}>{drinkType}</Text>
+            {products.map((product) => (
+              <TouchableOpacity key={product.id} onPress={() => toggleDetails(product.id)}>
+                <Card style={styles.card}>
+                  {product.image && (
+                    <Card.Cover source={{ uri: product.image }} style={styles.image} />
+                  )}
+                  <Card.Title title={product.name} titleStyle={styles.itemTitleText} />
+                  {visibleDetails[product.id] && (
+                    <Card.Content>
+                      <Text style={styles.itemText}>{product.description}</Text>
+                    </Card.Content>
+                  )}
+                  <Card.Actions>
+                    <Text style={styles.priceText}>€ {product.price}</Text>
+                    <Button icon="plus" mode="contained" onPress={() => addToTab(product)}> Add to Tab </Button>
+                  </Card.Actions>
+                </Card>
+              </TouchableOpacity>
+            ))}
           </View>
-        </Card.Content>
-        <Card.Actions>
-          <Button
-            title="+"
-            onPress={() => addToTab(product)}
-          />
-        </Card.Actions>
-          </Card>
         ))}
       </ScrollView>
     </View>
   );
-
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
     backgroundColor: PRIMARY_COLOR,
+    padding: 10,
   },
-  item: {
-    marginVertical: 5,
-    width: '95%',
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: ACCENT_COLOR_2,
+    marginVertical: 10,
+  },
+  card: {
+    marginVertical: 10,
     backgroundColor: ACCENT_COLOR_1,
     borderRadius: 15,
+    padding: 10,
+  },
+  image: {
+    height: 150,
+    borderRadius: 10,
   },
   itemText: {
     color: ACCENT_COLOR_2,
     fontSize: 16,
-    fontFamily: 'Sf Pro Display',
+    marginVertical: 2,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-
   itemTitleText: {
     fontWeight: 'bold',
-    fontSize: 24,
-    marginBottom: 0, // Reduce the margin bottom to decrease padding
+    fontSize: 22,
     color: ACCENT_COLOR_2,
-    fontFamily: 'Playfair Display',
+  },
+  priceText: {
+    color: ACCENT_COLOR_2,
+    fontSize: 16,
+    marginRight: 10,
   },
 });
 
