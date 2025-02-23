@@ -7,6 +7,7 @@ import { PaperProvider } from 'react-native-paper';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import Main from './components/Main';
+import TabHistoryPage from "./screens/TabHistoryPage.tsx";
 
 const Stack = createStackNavigator();
 
@@ -19,6 +20,7 @@ function App(): React.JSX.Element {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Main" component={Main} />
+            <Stack.Screen name="TabHistoryPage" component={TabHistoryPage} />
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>

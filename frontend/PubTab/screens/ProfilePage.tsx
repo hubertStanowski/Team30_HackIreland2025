@@ -1,16 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, TextInput, ScrollView } from 'react-native';
-import { PRIMARY_COLOR, PURPLE, SERVER_URL } from '../constants.ts';
+import React, { useState, useEffect } from 'react';
+import {View, Text, StyleSheet, Alert, Modal, TextInput, ScrollView, TouchableOpacity} from 'react-native';
+import { PRIMARY_COLOR, PURPLE, SERVER_URL } from '../constants';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import LoginScreen from './LoginScreen.tsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button, Divider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfilePage = () => {
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
-  const [isHistoryModalVisible, setHistoryModalVisible] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [tabHistory, setTabHistory] = useState([]);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${SERVER_URL}/auth/user/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Token ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setUsername(data.username);
+          setEmail(data.email);
+        } else {
+          Alert.alert('Error', data.error || 'An error occurred');
+        }
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    };
+
+    fetchUsername();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -20,7 +51,7 @@ const ProfilePage = () => {
           'Content-Type': 'application/json',
         },
       });
-      return <LoginScreen />;
+      navigation.navigate('LoginScreen');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -44,51 +75,30 @@ const ProfilePage = () => {
     }
   };
 
-  const handleTabHistory = async () => {
-    try {
-      const response = await fetch(`${SERVER_URL}/pubs/history/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      setTabHistory(data.history || []);
-    } catch (error) {
-      console.error('Error getting tab history:', error);
-    }
-  };
-
   return (
     <View style={styles.container}>
-      {/* User Info */}
       <View style={styles.userInfo}>
         <Icon name="person-circle" size={60} color="white" />
-        <Text style={styles.username}>Username</Text>
+        <Text style={styles.username}>{username}</Text>
       </View>
+      <Text style={styles.username}>{email}</Text>
 
-      {/* Change Password */}
-      <TouchableOpacity style={styles.rowSegment} onPress={() => setPasswordModalVisible(true)}>
-        <Icon name="help-circle-outline" size={30} color="white" />
-        <Text style={styles.segmentText}>Change Password</Text>
-      </TouchableOpacity>
+      <Button icon="help-circle-outline" mode="contained" onPress={() => setPasswordModalVisible(true)}>
+        Change Password
+      </Button>
 
-      {/* Tab History */}
-      <TouchableOpacity style={styles.rowSegment} onPress={() => {
-        setHistoryModalVisible(true);
-        handleTabHistory();
-      }}>
-        <MaterialIcon name="history" size={30} color="white" />
-        <Text style={styles.segmentText}>Tab History</Text>
-      </TouchableOpacity>
+      <Divider style={{ marginTop: 15, marginBottom: 15 }} />
 
-      {/* Log Out */}
-      <TouchableOpacity style={styles.rowSegment} onPress={handleLogout}>
-        <MaterialIcon name="logout" size={30} color="white" />
-        <Text style={styles.segmentText}>Log Out</Text>
-      </TouchableOpacity>
+      <Button icon="history" mode="contained" onPress={() => navigation.navigate('TabHistoryPage')}>
+        Tab History
+      </Button>
 
-      {/* Change Password Modal */}
+      <Divider style={{ marginTop: 15, marginBottom: 15 }} />
+
+      <Button icon="logout" mode="contained" onPress={handleLogout}>
+        Log Out
+      </Button>
+
       <Modal visible={isPasswordModalVisible} transparent={true} animationType="slide">
         <View style={styles.modalContainer}>
           <TouchableOpacity onPress={() => setPasswordModalVisible(false)}>
@@ -113,25 +123,6 @@ const ProfilePage = () => {
           </TouchableOpacity>
         </View>
       </Modal>
-
-      {/* Tab History Modal */}
-      <Modal visible={isHistoryModalVisible} transparent={true} animationType="slide">
-        <View style={styles.modalContainer}>
-          <TouchableOpacity onPress={() => setHistoryModalVisible(false)}>
-            <Icon name="arrow-back" size={30} color="white" />
-          </TouchableOpacity>
-          <Text style={styles.segmentText}>Tab History</Text>
-          <ScrollView style={styles.historyContainer}>
-            {tabHistory.length > 0 ? (
-              tabHistory.map((item, index) => (
-                <Text key={index} style={styles.historyText}>{item}</Text>
-              ))
-            ) : (
-              <Text style={styles.historyText}>No history available.</Text>
-            )}
-          </ScrollView>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -154,35 +145,11 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: 10,
   },
-  rowSegment: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: PURPLE,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    width: '80%',
-    marginVertical: 10,
-  },
-  segmentText: {
-    fontSize: 18,
-    color: 'white',
-    marginLeft: 15,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
-  },
-  historyContainer: {
-    marginTop: 10,
-    maxHeight: 300,
-  },
-  historyText: {
-    color: 'white',
-    fontSize: 16,
-    marginVertical: 5,
   },
   input: {
     backgroundColor: 'white',
