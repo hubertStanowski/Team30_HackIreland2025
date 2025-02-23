@@ -1,8 +1,9 @@
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
-from tab.views import Tab
+from tab.models import Tab, TabItem
 from .models import Pub
 
 
@@ -36,3 +37,32 @@ def busy_percentage():
             'busy_percentage': percentage
         }
         pub.save()
+
+@api_view(['GET'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def retrieve_tabs_history(request):
+    """
+    Retrieve the tab history of a customer
+    :return:
+    """
+    tabs = Tab.objects.filter(customer=request.user)
+    tabs_list = []
+    for tab in tabs:
+        tab_items = TabItem.objects.filter(tab=tab)
+        tab_items_list = list(tab_items.values())
+        tab_data = {
+            'id': tab.id,
+            'pub': tab.pub.name,
+            'table': tab.table.number,
+            'total': tab.total,
+            'limit': tab.limit,
+            'paid': tab.paid,
+            'created': tab.created,
+            'updated': tab.updated,
+            'customer': tab.customer.username,
+            'tab_items': tab_items_list
+        }
+        tabs_list.append(tab_data)
+
+    return Response(tabs_list)
