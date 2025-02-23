@@ -19,6 +19,23 @@ const getToken = async () => {
   }
 };
 
+// const getTab = async () => {
+//   try {
+//     const token = await AsyncStorage.getItem('tab');
+//     if (token !== null) {
+//       console.log('Tab:', token);
+//       return token;
+//     } else {
+//       console.log('No tab found');
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error('Error retrieving tab:', error);
+//     return null;
+//   }
+// };
+
+
 
 
 const HomePage = () => {
@@ -44,6 +61,9 @@ const HomePage = () => {
       
       const data = await response.json();
       setInitialized(true);
+      if (data && data.id) {
+        await AsyncStorage.setItem('tab', data.id.toString());
+      }
   
       if (response.ok) {
         Alert.alert('Tab Opened', `Response: ${JSON.stringify(data)}`);

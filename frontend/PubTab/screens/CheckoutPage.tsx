@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Alert } from 'react-native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import Checkout from '../components/Checkout';
 import { ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
@@ -15,11 +15,9 @@ const getToken = async () => {
   try {
     const token = await AsyncStorage.getItem('token');
     if (token !== null) {
-      // Token exists
       console.log('Token:', token);
       return token;
     } else {
-      // Token does not exist
       console.log('No token found');
       return null;
     }
@@ -29,9 +27,61 @@ const getToken = async () => {
   }
 };
 
+const getTab = async () => {
+  try {
+    const token = await AsyncStorage.getItem('tab');
+    if (token !== null) {
+      console.log('Tab:', token);
+      return token;
+    } else {
+      console.log('No tab found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving tab:', error);
+    return null;
+  }
+};
+
+
 const CheckoutPage = () => {
 
-
+  const getItems = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        console.error('No token available');
+        return;
+      }
+      // const tab = await getTab();
+      // if (!tab) {
+      //   console.error('No tab available');
+      //   return;
+      // }
+      // Adjust payload: only send table and limit.
+      const response = await fetch(`${SERVER_URL}/tabs/items/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tab_id: 1
+        }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert('Tab Opened', `Response: ${JSON.stringify(data)}`);
+      } else {
+        Alert.alert('Error2', data.error || 'An error occurred');
+      }
+    } catch (error) {
+      console.error('Error opening tab:', error);
+      Alert.alert('Error2', 'Could not open tab. Please try again later.');
+    }
+  };
+  getItems();
 
   const products = [
     { name: 'Guinness', count: 2, price: 5.99 },

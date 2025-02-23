@@ -12,7 +12,6 @@ const ProfilePage = () => {
     try {
       // Placeholder for logout request
       await AsyncStorage.removeItem('token');
-      navigation.replace('LoginPage');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -27,13 +26,13 @@ const ProfilePage = () => {
       </View>
 
       {/* Change Password */}
-      <TouchableOpacity style={styles.rowSegment} onPress={() => navigation.navigate('ChangePasswordPage')}>
+      <TouchableOpacity style={styles.rowSegment} onPress={() => navigation.navigate('ExplorePage')}>
         <Ionicons name="help-circle-outline" size={30} color="white" />
         <Text style={styles.segmentText}>Change Password</Text>
       </TouchableOpacity>
 
       {/* Tab History */}
-      <TouchableOpacity style={styles.rowSegment} onPress={() => navigation.navigate('TabHistoryPage')}>
+      <TouchableOpacity style={styles.rowSegment} onPress={() => navigation.navigate('ExplorePage')}>
         <MaterialIcons name="history" size={30} color="white" />
         <Text style={styles.segmentText}>Tab History</Text>
       </TouchableOpacity>
