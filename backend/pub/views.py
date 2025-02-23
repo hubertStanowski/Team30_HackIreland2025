@@ -350,3 +350,14 @@ def list_favorite_drinks_by_pub(request):
 
     return Response({"favorites": favorite_list}, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def tables_of_pub(request, pub_id):
+    """
+    List all tables of a given pub.
+    """
+    pub = get_object_or_404(Pub, id=pub_id)
+    tables = Table.objects.filter(pub=pub)
+    tables_list = list(tables.values())
+    return Response(tables_list)
