@@ -97,3 +97,15 @@ def register_view(request):
     token = Token.objects.create(user=user)
     return Response({"message": "User created successfully.", "token": token.key},
                     status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    """
+    API endpoint for retrieving user information.
+    Requires authentication.
+    """
+    user = request.user
+    return Response({"username": user.username, "email": user.email},
+                    status=status.HTTP_200_OK)
