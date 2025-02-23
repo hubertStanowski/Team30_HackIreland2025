@@ -3,12 +3,16 @@ import { BottomNavigation } from 'react-native-paper';
 import HomePage from '../screens/HomePage';
 import CheckoutPage from "../screens/CheckoutPage";
 import { PRIMARY_COLOR, ACCENT_COLOR_2 } from '../constants';
+import ExplorePage from '../screens/ExplorePage';
+import MenuPage from '../screens/MenuPage';
+import ProfilePage from '../screens/ProfilePage';
 
 const NavBar = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
     { key: 'explore', title: 'Explore', focusedIcon: 'magnify', unfocusedIcon: 'magnify' },
+    { key: 'menu', title: 'Menu', focusedIcon: 'food', unfocusedIcon: 'food-outline' },
     { key: 'checkout', title: 'Checkout', focusedIcon: 'cart', unfocusedIcon: 'cart-outline' },
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
@@ -18,11 +22,13 @@ const NavBar = () => {
       case 'home':
         return <HomePage />;
       case 'explore':
-        return <HomePage />;
+        return <ExplorePage />;
+      case 'menu':
+        return <MenuPage />;
       case 'checkout':
         return <CheckoutPage />;
       case 'profile':
-        return <HomePage />;
+        return <ProfilePage />;
       default:
         return null;
     }
