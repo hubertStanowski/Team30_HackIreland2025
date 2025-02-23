@@ -352,7 +352,6 @@ def list_favorite_drinks_by_pub(request):
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
-@permission_classes([IsAuthenticated])
 def tables_of_pub(request, pub_id):
     """
     List all tables of a given pub.
