@@ -42,14 +42,11 @@ const getTab = async () => {
     return null;
   }
 };
-
 interface Product {
-  name: string;
-  description: string;
+  drink: string;
   price: string;
-  drink_type: string;
-  image: string | null;
-
+  quantity: number;
+  sub_total: number;
 }
 
 
@@ -81,6 +78,7 @@ const CheckoutPage = () => {
       
       const data = await response.json();
       if (response.ok) {
+        setProducts(data.items)
         Alert.alert('Items', `Response: ${JSON.stringify(data)}`);
       } else {
         Alert.alert('Error2', data.error || 'An error occurred');
@@ -93,34 +91,9 @@ const CheckoutPage = () => {
   useEffect(() => {
     getItems();
   }, []);
-  const [products, setProducts] = useState<Product[]>([
-    {
-      name: 'Beer',
-      description: 'A refreshing beer',
-      price: '5.00',
-      drink_type: 'alcoholic',
-      image: null,
-      starred: false,
-    },
-    {
-      name: 'Wine',
-      description: 'A fine wine',
-      price: '10.00',
-      drink_type: 'alcoholic',
-      image: null,
-      starred: false,
-    },
-    {
-      name: 'Soda',
-      description: 'A fizzy soda',
-      price: '3.00',
-      drink_type: 'non-alcoholic',
-      image: null,
-      starred: false,
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const totalAmount = Math.round(products.reduce((sum, product) => sum + 2 * parseFloat(product.price), 0));
+  const totalAmount = products.reduce((sum, product) => sum + product.quantity * parseFloat(product.price), 0).toFixed(2);
   const [isStarred, setIsStarred] = useState(false);
 
   return (
@@ -129,9 +102,9 @@ const CheckoutPage = () => {
         <View style={styles.productList}>
           {products.map((product, index) => (
             <Card key={index} style={styles.product}>
-              <Card.Title title={`2 x ${product.name}`} titleStyle={styles.productTitleText} />
+              <Card.Title title={`${product.quantity} x ${product.drink}`} titleStyle={styles.productTitleText} />
                 <Card.Content style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-                <Text style={styles.productText}>{`${parseFloat(product.price) * 2}€`}</Text>
+                <Text style={styles.productText}>{`${parseFloat(product.price) * product.quantity}€`}</Text>
                 <Ionicons 
                   name={isStarred ? "star" : "star-outline"} 
                   size={30} 
@@ -144,7 +117,7 @@ const CheckoutPage = () => {
           ))}
         </View>
         <View style={styles.checkoutButton}>
-          <Checkout amount={totalAmount}/>
+          <Checkout amount={parseFloat(totalAmount)}/>
         </View>
       </View>
     </StripeProvider>
