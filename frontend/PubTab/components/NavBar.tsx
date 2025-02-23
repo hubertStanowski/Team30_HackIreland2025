@@ -23,13 +23,13 @@ const NavBar = () => {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
-        return <HomePage reset={reset} setReset={setReset}/>;
+        return <HomePage reset={reset} setReset={setReset} setUpdate={setUpdate} />;
       case 'explore':
         return <ExplorePage />;
       case 'menu':
         return <MenuPage setUpdate={setUpdate} />;
       case 'checkout':
-        return <CheckoutPage update={update} reset={reset} setReset={setReset} />;
+        return <CheckoutPage update={update} reset={reset} setReset={setReset} setUpdate={setUpdate} />;
       case 'profile':
         return <ProfilePage />;
       default:

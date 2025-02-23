@@ -41,9 +41,10 @@ const getToken = async () => {
 interface HomePageProps {
   reset: boolean;
   setReset: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdate: (value: number) => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ reset, setReset }) => {
+const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate }) => {
   const openTab = async () => {
     try {
       const token = await getToken();
@@ -65,12 +66,14 @@ const HomePage: React.FC<HomePageProps> = ({ reset, setReset }) => {
       });
       
       const data = await response.json();
-      setInitialized(true);
-      setReset(false);
       if (data && data.id) {
         await AsyncStorage.setItem('tab', data.id.toString());
       }
   
+      setInitialized(true);
+      setReset(false);
+      setUpdate(Math.random());
+     
       if (response.ok) {
         Alert.alert('Tab Opened1', `Response: ${JSON.stringify(data)}`);
       } else {
