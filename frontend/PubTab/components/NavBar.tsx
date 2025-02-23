@@ -8,6 +8,7 @@ const NavBar = () => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'home', title: 'Home', focusedIcon: 'home', unfocusedIcon: 'home-outline' },
+    { key: 'explore', title: 'Explore', focusedIcon: 'magnify', unfocusedIcon: 'magnify' },
     { key: 'checkout', title: 'Checkout', focusedIcon: 'cart', unfocusedIcon: 'cart-outline' },
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
@@ -15,6 +16,8 @@ const NavBar = () => {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
+        return <HomePage />;
+      case 'explore':
         return <HomePage />;
       case 'checkout':
         return <CheckoutPage />;
