@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -22,7 +23,7 @@ class Table(models.Model):
     capacity = models.IntegerField()
     location = models.CharField(max_length=100)
     description = models.TextField()
-    bussy = models.BooleanField(default=False)
+    busy = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.pub.name} - Table {self.number}'
@@ -33,7 +34,9 @@ class Drink(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     image = models.ImageField(upload_to='drinks', blank=True)
     drink_type = models.ForeignKey('DrinkType', on_delete=models.CASCADE)
+    pub = models.ForeignKey(Pub, on_delete=models.CASCADE, related_name='drinks')
 
+    
     def __str__(self):
         return self.name
 
@@ -42,3 +45,14 @@ class DrinkType(models.Model):
 
     def __str__(self):
         return self.name
+    
+class FavoriteDrink(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorite_drinks')
+    drink = models.ForeignKey(Drink, on_delete=models.CASCADE, related_name='favorited_by')
+    favorited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'drink')
+
+    def __str__(self):
+        return f"{self.user.username} favorited {self.drink.name}"
