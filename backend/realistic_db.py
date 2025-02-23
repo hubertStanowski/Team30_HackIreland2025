@@ -4,10 +4,10 @@ import random
 from decimal import Decimal
 
 # Setup Django environment (adjust the settings module as needed)
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 django.setup()
 
-from myapp.models import Pub, Table, Drink, DrinkType
+from pub.models import Pub, Table, Drink, DrinkType
 
 # Create some drink types
 beer, _ = DrinkType.objects.get_or_create(name="Beer")
