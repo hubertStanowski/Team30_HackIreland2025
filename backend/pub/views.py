@@ -83,6 +83,7 @@ def get_drink_suggestion(request):
     
     return Response({"suggestion": suggestion}, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 def pub_list(request):
