@@ -42,9 +42,11 @@ interface HomePageProps {
   setReset: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdate: (value: number) => void;
   setTabInitialized:  (value: boolean) => void;
+  selectedPub: number;
+  setSelectedPub: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabInitialized }) => {
+const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabInitialized, selectedPub, setSelectedPub }) => {
   const openTab = async () => {
     try {
       const token = await getToken();

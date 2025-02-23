@@ -25,7 +25,7 @@ const NavBar = () => {
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
-        return <HomePage reset={reset} setReset={setReset} setUpdate={setUpdate}  setTabInitialized={setTabInitialized}/>;
+        return <HomePage reset={reset} setReset={setReset} setUpdate={setUpdate} setTabInitialized={setTabInitialized} selectedPub={selectedPub} setSelectedPub={setSelectedPub} />;
       case 'explore':
         return <ExplorePage setSelectedPub={setSelectedPub} tabInitialized={tabInitialized} />;
       case 'menu':
