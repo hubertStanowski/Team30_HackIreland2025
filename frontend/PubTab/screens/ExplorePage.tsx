@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Linking, ScrollView, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, SERVER_URL } from '../constants';
 import { Card, Button } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Pub {
   id: number;
@@ -16,11 +17,28 @@ interface Pub {
   image: string | null;
 }
 
-const ExplorePage = ({ setSelectedPub }: { setSelectedPub: any}) => {
+const getTab = async () => {
+  try {
+    const token = await AsyncStorage.getItem('tab');
+    if (token !== null) {
+      console.log('Tab:', token);
+      return token;
+    } else {
+      console.log('No tab found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving tab:', error);
+    return null;
+  }
+};
+
+const ExplorePage = ({ setSelectedPub, tabInitialized }: { setSelectedPub: any, tabInitialized: boolean }) => {
   const [pubList, setPubList] = useState<Pub[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredPubs, setFilteredPubs] = useState<Pub[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
 
   useEffect(() => {
     const fetchPubs = async () => {
@@ -86,13 +104,15 @@ const ExplorePage = ({ setSelectedPub }: { setSelectedPub: any}) => {
                   {pub.website}
                 </Text>
 
-                <Card.Actions>
-                    <Button icon="currency-eur" onPress={() => {
-                      setSelectedPub(pub.id);
-                    }} color={ACCENT_COLOR_2}>
-                      Start a Tab
-                    </Button>
-                </Card.Actions>
+                {!tabInitialized && (
+                  <Card.Actions>
+                  <Button icon="currency-eur" onPress={() => {
+                    setSelectedPub(pub.id);
+                  }} color={ACCENT_COLOR_2}>
+                    Start a Tab
+                  </Button>
+                  </Card.Actions>
+                )}
               </Card.Content>
             )}
           </Card>

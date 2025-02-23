@@ -37,14 +37,14 @@ const getToken = async () => {
 
 
 
-
 interface HomePageProps {
   reset: boolean;
   setReset: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdate: (value: number) => void;
+  setTabInitialized:  (value: boolean) => void;
 }
 
-const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate }) => {
+const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate, setTabInitialized }) => {
   const openTab = async () => {
     try {
       const token = await getToken();
@@ -71,6 +71,7 @@ const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate }) => {
       }
   
       setInitialized(true);
+      setTabInitialized(true);
       setReset(false);
       setUpdate(Math.random());
      
@@ -88,6 +89,7 @@ const HomePage: React.FC<HomePageProps> = ({ reset, setReset, setUpdate }) => {
   useEffect(() => { 
     if (reset) {
       setInitialized(false);
+      setTabInitialized(false)
     }
   }, [reset]);
 

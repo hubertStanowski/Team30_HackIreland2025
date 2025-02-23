@@ -20,13 +20,14 @@ const NavBar = () => {
   const [update, setUpdate] = useState(0);
   const [reset, setReset] = useState(false);
   const [selectedPub, setSelectedPub] = useState(1);
+   const [tabInitialized, setTabInitialized] = useState<boolean>(false);
   
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
-        return <HomePage reset={reset} setReset={setReset} setUpdate={setUpdate} />;
+        return <HomePage reset={reset} setReset={setReset} setUpdate={setUpdate}  setTabInitialized={setTabInitialized}/>;
       case 'explore':
-        return <ExplorePage setSelectedPub={setSelectedPub} />;
+        return <ExplorePage setSelectedPub={setSelectedPub} tabInitialized={tabInitialized} />;
       case 'menu':
         return <MenuPage setUpdate={setUpdate} selectedPub={selectedPub} />;
       case 'checkout':
