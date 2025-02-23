@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 interface Product {
+  id: number;
   name: string;
   description: string;
   price: string;
@@ -62,7 +63,7 @@ const addToTab = async (product: Product) => {
           'Content-Type': 'application/json',
           'Authorization': `Token ${token}`,
         },
-        body: JSON.stringify({ tab_id: tab, drink: product.name, quantity: 1 }),
+        body: JSON.stringify({ tab_id: tab, drink: product.id, quantity: 1 }),
       });
       const data = await response.json();
       Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
