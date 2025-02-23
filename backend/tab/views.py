@@ -378,3 +378,28 @@ def tab_items(request):
     }
     
     return Response(response_data)
+
+@api_view(['GET'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def user_paid_tabs(request):
+    """
+    Retrieve all paid tabs that the authenticated user has created in the past.
+    """
+    # Retrieve all tabs for the authenticated user where paid is True.
+    tabs = Tab.objects.filter(customer=request.user, paid=True).order_by('-created')
+    
+    tabs_list = []
+    for tab in tabs:
+        tabs_list.append({
+            "id": tab.id,
+            "pub": tab.pub.name,
+            "table": tab.table.number,
+            "total": str(tab.total),
+            "limit": str(tab.limit) if tab.limit else None,
+            "paid": tab.paid,
+            "created": tab.created.isoformat(),
+            "updated": tab.updated.isoformat(),
+        })
+    
+    return Response({"tabs": tabs_list}, status=status.HTTP_200_OK)
