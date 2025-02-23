@@ -12,7 +12,7 @@ const NavBar = () => {
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
 
-  const renderScene = ({ route }) => {
+  const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
         return <HomePage />;

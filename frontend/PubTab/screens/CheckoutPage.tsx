@@ -44,13 +44,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: PRIMARY_COLOR
   },
   productList: {
     flex: 1,
     justifyContent: 'flex-start',
     width: '100%',
     alignItems: 'center',
-    backgroundColor: PRIMARY_COLOR,
+    
   },
   checkoutButton: {
     marginBottom: 15,
