@@ -6,7 +6,7 @@ from rest_framework import status
 from django.db.models import Count, Q
 
 from tab.models import Tab, TabItem
-from .models import Pub, Table
+from .models import Pub, Table, Drink
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
@@ -120,6 +120,45 @@ def pub_tabs(request):
     
     return Response(response_data)
 
+
+
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+def pub_products(request):
+    """
+    Retrieve all products (drinks) and their prices for a given pub.
+    Expects a POST request with a JSON body containing:
+    {
+        "pub_id": <pub_id>
+    }
+    """
+    pub_id = request.data.get('pub_id')
+    if not pub_id:
+        return Response({'error': "Missing 'pub_id' in request body."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    pub = get_object_or_404(Pub, id=pub_id)
+    drinks = Drink.objects.filter(pub=pub)
+    
+    products_list = []
+    for drink in drinks:
+        products_list.append({
+            "name": drink.name,
+            "description": drink.description,
+            "price": str(drink.price),
+            "drink_type": drink.drink_type.name,
+            "image": drink.image.url if drink.image else None,
+        })
+    
+    response_data = {
+        "pub": {
+            "id": pub.id,
+            "name": pub.name,
+        },
+        "products": products_list,
+    }
+    
+    return Response(response_data)
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
