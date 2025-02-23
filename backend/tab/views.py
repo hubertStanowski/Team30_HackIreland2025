@@ -11,6 +11,7 @@ from .serializers import StripeSerializer
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .models import Tab, TabItem
+from pub.models import Table
 from pub.models import Drink
 from django.shortcuts import get_object_or_404
 
@@ -91,11 +92,11 @@ def stripe_payment(request):
 @permission_classes([IsAuthenticated])
 def open_tab(request):
     """
-    Open a new tab with the provided data if no active (unpaid) tab exists for the user.
+    Open a new tab with the provided table ID and optional limit.
+    Retrieves the pub id from the given table.
     Expected POST data:
-        - pub: ID of the pub (integer)
         - table: ID of the table (integer)
-t        - limit: Optional spending limit (decimal)
+        - limit: Optional spending limit (decimal)
     """
     data = request.data
 
@@ -106,11 +107,22 @@ t        - limit: Optional spending limit (decimal)
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    table_id = data.get('table')
+    if not table_id:
+        return Response(
+            {'error': 'Missing table id in request data.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Retrieve the table and its related pub.
+    table = get_object_or_404(Table, id=table_id)
+    pub = table.pub
+
     try:
         # Create a new Tab instance.
         tab = Tab.objects.create(
-            pub_id=data.get('pub'),
-            table_id=data.get('table'),
+            pub=pub,
+            table=table,
             total=0,
             limit=data.get('limit'),
             customer=request.user
@@ -121,21 +133,22 @@ t        - limit: Optional spending limit (decimal)
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    # Mark the table as busy.
+    table.busy = True
+    table.save()
+
     tab_data = {
         'id': tab.id,
-        'pub': tab.pub.name,
-        'table': tab.table.number,
-        'total': tab.total,
-        'limit': tab.limit,
+        'pub': pub.name,
+        'table': table.number,
+        'total': str(tab.total),
+        'limit': str(tab.limit) if tab.limit else None,
         'paid': tab.paid,
-        'created': tab.created,
-        'updated': tab.updated,
+        'created': tab.created.isoformat(),
+        'updated': tab.updated.isoformat(),
         'customer': tab.customer.username,
         'tab_items': []  # No tab items when first opened.
     }
-
-    tab.table.busy = True
-    tab.table.save()
 
     return Response(tab_data, status=status.HTTP_201_CREATED)
 
