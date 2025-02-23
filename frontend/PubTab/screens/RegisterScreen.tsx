@@ -22,7 +22,26 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+
   const handleRegister = async () => {
+    if (!validateEmail(email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      Alert.alert('Weak Password', 'Password must be at least 8 characters long.');
+      return;
+    }
+
     try {
       const response = await fetch('https://pubtab.eu.pythonanywhere.com/auth/register/', {
         method: 'POST',
@@ -63,7 +82,6 @@ const RegisterScreen = () => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {/* Header (Icon + Title) */}
           <View style={styles.header}>
             <Ionicons name="beer-outline" size={40} color={ACCENT_COLOR_2} />
             <Text style={styles.title}>PubTab</Text>
@@ -131,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     color: ACCENT_COLOR_2,
-    marginLeft: 10, // Space between icon and text
+    marginLeft: 10,
   },
   secondtitle: {
     fontSize: 28,
@@ -141,11 +159,11 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   input: {
-    width: '100%', // Ensure full width
+    width: '100%',
     marginBottom: 15,
   },
   button: {
-    width: '100%', // Ensure button is properly centered
+    width: '100%',
     marginTop: 10,
   },
   link: {
