@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     width: '100%',
     alignItems: 'center',
-    
   },
   checkoutButton: {
     marginBottom: 15,
@@ -82,7 +81,8 @@ const styles = StyleSheet.create({
   product: {
     marginVertical: 5,
     width: '90%',
-    backgroundColor: "#19211B",
+    backgroundColor: ACCENT_COLOR_1,
+    borderRadius: 15,
   },
   productText: {
     color: "#FAF3E0",
