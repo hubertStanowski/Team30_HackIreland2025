@@ -1,12 +1,14 @@
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, permission_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.db.models import Count, Q
+from rest_framework.permissions import IsAuthenticated
+
 
 from tab.models import Tab, TabItem
-from .models import Pub, Table, Drink
+from .models import Pub, Table, Drink, FavoriteDrink
 
 @api_view(['GET'])
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
@@ -192,4 +194,84 @@ def busy_percentage(request):
 
     return Response({"pubs": pub_data})
 
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def add_favorite_drink(request):
+    """
+    Add a drink to the authenticated user's favorites.
+    Expects JSON body:
+    {
+        "drink_id": <drink_id>
+    }
+    """
+    drink_id = request.data.get('drink_id')
+    if not drink_id:
+        return Response({'error': "Missing 'drink_id' in request body."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    drink = get_object_or_404(Drink, id=drink_id)
+    favorite, created = FavoriteDrink.objects.get_or_create(user=request.user, drink=drink)
+    
+    if created:
+        return Response({'message': f"{drink.name} was added to your favorites."},
+                        status=status.HTTP_201_CREATED)
+    else:
+        return Response({'message': f"{drink.name} is already in your favorites."},
+                        status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def remove_favorite_drink(request):
+    """
+    Remove a drink from the authenticated user's favorites.
+    Expects JSON body:
+    {
+        "drink_id": <drink_id>
+    }
+    """
+    drink_id = request.data.get('drink_id')
+    if not drink_id:
+        return Response({'error': "Missing 'drink_id' in request body."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    drink = get_object_or_404(Drink, id=drink_id)
+    favorite = FavoriteDrink.objects.filter(user=request.user, drink=drink).first()
+    if favorite:
+        favorite.delete()
+        return Response({'message': f"{drink.name} was removed from your favorites."},
+                        status=status.HTTP_200_OK)
+    else:
+        return Response({'error': f"{drink.name} is not in your favorites."},
+                        status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+@permission_classes([IsAuthenticated])
+def list_favorite_drinks_by_pub(request):
+    """
+    List all favorite drinks for the authenticated user at a specific pub.
+    Expects the pub id as a query parameter, e.g., /api/favorites/?pub_id=1
+    """
+    pub_id = request.data.get('pub_id')
+    if not pub_id:
+        return Response({'error': "Missing 'pub_id' in query parameters."},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    favorites = FavoriteDrink.objects.filter(user=request.user, drink__pub__id=pub_id)
+    favorite_list = []
+    for fav in favorites:
+        favorite_list.append({
+            "id": fav.drink.id,
+            "name": fav.drink.name,
+            "description": fav.drink.description,
+            "price": str(fav.drink.price),
+            "drink_type": fav.drink.drink_type.name,
+            "image": fav.drink.image.url if fav.drink.image else None,
+            "favorited_at": fav.favorited_at.isoformat(),
+        })
+
+    return Response({"favorites": favorite_list}, status=status.HTTP_200_OK)
 
