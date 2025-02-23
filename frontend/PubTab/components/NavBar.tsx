@@ -17,6 +17,8 @@ const NavBar = () => {
     { key: 'profile', title: 'Profile', focusedIcon: 'account', unfocusedIcon: 'account-outline' },
   ]);
 
+  const [update, setUpdate] = useState(0);
+  
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
       case 'home':
@@ -24,9 +26,9 @@ const NavBar = () => {
       case 'explore':
         return <ExplorePage />;
       case 'menu':
-        return <MenuPage />;
+        return <MenuPage setUpdate={setUpdate} />;
       case 'checkout':
-        return <CheckoutPage />;
+        return <CheckoutPage update={update} />;
       case 'profile':
         return <ProfilePage />;
       default:

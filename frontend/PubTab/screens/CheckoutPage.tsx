@@ -34,7 +34,7 @@ interface Product {
   isFavorite?: boolean;
 }
 
-const CheckoutPage = () => {
+const CheckoutPage = ({ update }: { update: number }) => {
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ const CheckoutPage = () => {
 
         const data = await response.json();
         if (response.ok) {
-          setProducts(data.items.map(item => ({ ...item, isFavorite: false })));
+          setProducts(data.items.map((item: any) => ({ ...item, isFavorite: false })));
         } else {
           Alert.alert('Error', data.error || 'An error occurred');
         }
@@ -64,7 +64,7 @@ const CheckoutPage = () => {
       }
     };
     getItems();
-  }, []);
+  }, [update]);
 
   const toggleFavorite = (index: number) => {
     setProducts(prevProducts =>

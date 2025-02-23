@@ -31,8 +31,9 @@ const getToken = async () => {
   }
 };
 
-const addToTab = async (product: Product) => {
+const addToTab = async (product: Product, setUpdate: any) => {
   try {
+    
     const token = await getToken();
     if (!token) return;
     const tab = await getTab();
@@ -50,6 +51,7 @@ const addToTab = async (product: Product) => {
       body: JSON.stringify({ tab_id: tab, drink: product.id, quantity: 1 }),
     });
     const data = await response.json();
+    setUpdate(Math.random());
     Alert.alert('Add to Tab', `Response: ${JSON.stringify(data)}`);
   } catch (error) {
     console.error('Error adding item to tab:', error);
@@ -65,8 +67,7 @@ const groupByDrinkType = (products: Product[]) => {
     return acc;
   }, {} as Record<string, Product[]>);
 };
-
-const MenuPage = () => {
+const MenuPage = ({ setUpdate }: { setUpdate: any }) => {
   const [groupedItems, setGroupedItems] = useState<Record<string, Product[]>>({});
   const [visibleDetails, setVisibleDetails] = useState<Record<number, boolean>>({});
 
@@ -116,7 +117,7 @@ const MenuPage = () => {
                   )}
                   <Card.Actions>
                     <Text style={styles.priceText}>€ {product.price}</Text>
-                    <Button icon="plus" mode="contained" onPress={() => addToTab(product)}> Add to Tab </Button>
+                    <Button icon="plus" mode="contained" onPress={() => addToTab(product, setUpdate)}> Add to Tab </Button>
                   </Card.Actions>
                 </Card>
               </TouchableOpacity>
