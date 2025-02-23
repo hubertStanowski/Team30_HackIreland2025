@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, TextInput, ScrollView } from 'react-native';
 import { PRIMARY_COLOR, PURPLE, SERVER_URL } from '../constants.ts';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -20,7 +20,7 @@ const ProfilePage = () => {
           'Content-Type': 'application/json',
         },
       });
-      LoginScreen();
+      return <LoginScreen />;
     } catch (error) {
       console.error('Error logging out:', error);
     }
