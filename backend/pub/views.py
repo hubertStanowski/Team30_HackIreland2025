@@ -125,18 +125,19 @@ def pub_tabs(request):
 @renderer_classes([JSONRenderer, BrowsableAPIRenderer])
 def busy_percentage(request):
     """
-    Calculate the busy percentages of every pub and return a list of pubs with their busy percentage.
+    Calculate the busy percentages of every pub based on the 'busy' attribute of tables.
+    Returns a list of all pubs with their corresponding busy percentage.
     """
     pubs = Pub.objects.annotate(
         table_count=Count('table', distinct=True),
-        used_table_count=Count('table', filter=Q(table__tab__isnull=False), distinct=True)
+        busy_table_count=Count('table', filter=Q(table__busy=True), distinct=True)
     )
 
     pub_data = []
     for pub in pubs:
         tableTotal = pub.table_count
-        tableUsed = pub.used_table_count
-        percentage = (tableUsed / tableTotal * 100) if tableTotal > 0 else 0
+        tableBusy = pub.busy_table_count
+        percentage = (tableBusy / tableTotal * 100) if tableTotal > 0 else 0
 
         # Update and save the busy percentage in the database
         pub.busy_percentage = percentage
@@ -146,7 +147,7 @@ def busy_percentage(request):
         pub_data.append({
             "id": pub.id,
             "name": pub.name,
-            "busy_percentage": round(percentage, 2)  # Rounded to 2 decimal places for readability
+            "busy_percentage": round(percentage, 2)  # Rounded to 2 decimal places
         })
 
     return Response({"pubs": pub_data})
