@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, Alert } from 'react-native';
-import {PRIMARY_COLOR, SERVER_URL} from "../constants.ts";
+import {PRIMARY_COLOR, PURPLE, SERVER_URL} from "../constants.ts";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -43,7 +43,7 @@ const openTab = async () => {
       }),
     });
     const data = await response.json();
-    Alert.alert('Tab opened', `Tab ID: ${data.error}`);
+    Alert.alert('Tab opened', `Response: ${JSON.stringify(data)}`);
   } catch (error) {
     console.error('Error opening tab:', error);
   }
@@ -54,15 +54,15 @@ const HomePage = () => {
   return (
     <View style={styles.container}>
       {initialized ? (
-        <Text style={styles.text}>Welcome to HomePage</Text>
+      <Text style={[styles.text, { fontSize: 60 }]}>Welcome to HomePage</Text>
       ) : (
-         <View style={{ backgroundColor: "rgb(99, 81, 159)", padding: 10, borderRadius: 50 }}>
-              <Button
-              title="Open Tab"
-              onPress={() => openTab()}
-              color="#FFFFFF"
-              />
-          </View> 
+       <View style={{ backgroundColor: PURPLE, paddingVertical: 20, paddingHorizontal: 60, borderRadius: 50 }}>
+        <Button
+        title="Open Tab"
+        onPress={() => openTab()}
+        color="#FFFFFF"
+        />
+        </View> 
       )}
     </View>
   );
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY_COLOR,
   },
   text: {
-    fontSize: 20,
+    fontSize: 45,
     fontWeight: 'bold',
     color: 'white',
   },

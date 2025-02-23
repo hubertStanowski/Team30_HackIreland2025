@@ -10,6 +10,7 @@ const VINTAGE_GOLD = '#D4AF37';
 export const PRIMARY_COLOR = DEEP_CHARCOAL_BLACK;
 export const ACCENT_COLOR_1 = GREEN;
 export const ACCENT_COLOR_2 = VINTAGE_GOLD;
+export const PURPLE = "rgb(99, 81, 159)"
 
 export const customTheme = {
   ...DefaultTheme,

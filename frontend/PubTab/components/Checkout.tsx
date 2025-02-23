@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Button, View } from 'react-native';
-import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2 } from '../constants';
+import { SERVER_URL, ACCENT_COLOR_1, ACCENT_COLOR_2, PURPLE } from '../constants';
 
 interface CheckoutProps {
   amount: number;
@@ -65,7 +65,7 @@ export default function Checkout({ amount }: CheckoutProps): React.JSX.Element {
   }, []);
 
   return (
-    <View style={{ backgroundColor: "rgb(99, 81, 159)", padding: 10, borderRadius: 50 }}>
+    <View style={{ backgroundColor: PURPLE, padding: 10, borderRadius: 50 }}>
       <Button
       title={`Checkout ${amount}€`}
       onPress={openPaymentSheet}

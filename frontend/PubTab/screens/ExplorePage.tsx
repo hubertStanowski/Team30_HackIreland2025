@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import {ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, SERVER_URL} from "../constants.ts";
+import { View, Text, StyleSheet, Linking, ScrollView } from 'react-native';
+import {ACCENT_COLOR_1, ACCENT_COLOR_2, PRIMARY_COLOR, PURPLE, SERVER_URL} from "../constants.ts";
 import { useEffect } from 'react';
 import { Card } from 'react-native-paper';
 
@@ -31,23 +31,30 @@ const ExplorePage = () => {
 
     fetchPubs();
   }, []);
-
   return (
     <View style={styles.container}>
-      {pubList.map((pub, index) => (
-        <Card key={index} style={styles.pub}>
-          <Card.Title titleStyle={styles.pubTitleText} subtitleStyle={styles.pubText} title={pub.name} subtitle={`${pub.address}, ${pub.city}, ${pub.province}, ${pub.zip}`}/>
-          <Card.Content>
-            <View>
-              <Text style={styles.pubText}>Phone: {pub.phone}</Text>
-              <Text style={styles.pubText}>Email: {pub.email}</Text>
-              <Text style={styles.pubText}>Website: {pub.website}</Text>
-            </View>
-          </Card.Content>
-        </Card>
-      ))}
+      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+        {pubList.map((pub, index) => (
+          <Card key={index} style={styles.pub}>
+            <Card.Title titleStyle={styles.pubTitleText} subtitleStyle={styles.pubText} title={pub.name} subtitle={`${pub.address}, ${pub.city}, ${pub.province}, ${pub.zip}`}/>
+            <Card.Content>
+              <View>
+                <Text style={styles.pubText}>Phone: {pub.phone}</Text>
+                <Text style={styles.pubText}>Email: {pub.email}</Text>
+                <Text 
+                  style={[styles.pubText, { color: '#0066CC' }]} 
+                  onPress={() => Linking.openURL(pub.website)}
+                >
+                  {pub.website}
+                </Text>
+              </View>
+            </Card.Content>
+          </Card>
+        ))}
+      </ScrollView>
     </View>
   );
+
 };
 
 
