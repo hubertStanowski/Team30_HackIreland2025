@@ -41,7 +41,7 @@ const RegisterScreen = () => {
           <Text style={styles.secondtitle}>Register</Text>
 
           <TextInput
-            label="Full Name"
+            label="Username"
             mode="outlined"
             value={name}
             onChangeText={setName}
