@@ -3,6 +3,7 @@ from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.db.models import Count, Q
 
 from tab.models import Tab, TabItem
 from .models import Pub, Table
@@ -120,22 +121,34 @@ def pub_tabs(request):
     return Response(response_data)
 
 
+@api_view(['GET'])
+@renderer_classes([JSONRenderer, BrowsableAPIRenderer])
+def busy_percentage(request):
+    """
+    Calculate the busy percentages of every pub and return a list of pubs with their busy percentage.
+    """
+    pubs = Pub.objects.annotate(
+        table_count=Count('table', distinct=True),
+        used_table_count=Count('table', filter=Q(table__tab__isnull=False), distinct=True)
+    )
 
-def busy_percentage():
-    """
-    Calculate the busy percentages of every pub
-    :return:
-    """
-    for pub in Pub.objects.all():
-        tableUsed = 0
-        tableTotal = 0
-        for table in Table.objects.filter(pub=pub):
-            tableTotal += 1
-            tabs = Tab.objects.filter(table=table)
-            if tabs:
-                tableUsed += 1
-        percentage = tableUsed / tableTotal * 100
-        pub = {
-            'busy_percentage': percentage
-        }
+    pub_data = []
+    for pub in pubs:
+        tableTotal = pub.table_count
+        tableUsed = pub.used_table_count
+        percentage = (tableUsed / tableTotal * 100) if tableTotal > 0 else 0
+
+        # Update and save the busy percentage in the database
+        pub.busy_percentage = percentage
         pub.save()
+
+        # Append pub data to the list
+        pub_data.append({
+            "id": pub.id,
+            "name": pub.name,
+            "busy_percentage": round(percentage, 2)  # Rounded to 2 decimal places for readability
+        })
+
+    return Response({"pubs": pub_data})
+
+
